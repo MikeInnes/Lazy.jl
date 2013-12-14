@@ -288,11 +288,11 @@ split_by(p, xs::List) =
 
 import Base: any, all
 
-# any(f::Function, xs::List) = @>> xs map(f) any
-# any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
+any(f::Function, xs::List) = @>> xs map(f) any
+any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
 
-# all(f::Function, xs::List) = @>> xs map(f) all
-# all(xs::List) = isempty(xs) ? true : first(xs) && rest(xs)
+all(f::Function, xs::List) = @>> xs map(f) all
+all(xs::List) = isempty(xs) ? true : first(xs) && rest(xs)
 
 # -----
 # Eager
