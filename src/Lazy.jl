@@ -342,7 +342,7 @@ end
 
 @listable +, -, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-const fibs = @lazy 0:big(1):(fibs + fibs[2:])
+const fibs = @lazy 0:big(1):(fibs + drop(1, fibs))
 
 isprime(n) =
   @>>(primes,
