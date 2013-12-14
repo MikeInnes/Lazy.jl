@@ -326,17 +326,14 @@ next(::List, xs::List) = first(xs), rest(xs)
 # Printing
 ###########
 
-function Base.show(io::IO, xs::List)
-  # print(io, "(")
+Base.show(io::IO, xs::List) =
   foreach(x->print(io,x), ["("] * interpose(xs, " ") * [")"])
-  # print(io, ")")
-end
 
 function Base.display(d::TextDisplay, xs::List)
   if isempty(xs) println(d.io, "List()"); return; end
   print(d.io, "List:")
   for x in xs
-    println(d.io)
+    print(d.io, "\n  ")
     show(d.io, x)
   end
 end
@@ -345,7 +342,7 @@ end
 
 @listable +, -, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-fibs = @lazy 0:big(1):(fibs + fibs[2:])
+const fibs = @lazy 0:big(1):(fibs + fibs[2:])
 
 isprime(n) =
   @>>(primes,
@@ -353,6 +350,6 @@ isprime(n) =
       map(x-> n % x == 0),
       not_any)
 
-primes = filter(isprime, range(2))
+const primes = filter(isprime, range(2))
 
 end
