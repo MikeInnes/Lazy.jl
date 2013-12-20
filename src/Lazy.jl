@@ -62,7 +62,7 @@ import Base: isempty, first
 export List, list, @lazy,
        prepend, rest
 
-abstract List <: AbstractArray
+abstract List #<: AbstractArray
 
 type EmptyList <: List
 end
@@ -286,6 +286,10 @@ split_by(p, xs::List) =
 # ----------
 
 import Base: any, all
+
+==(xs::List, ys::List) =
+  isempty(xs) == isempty(ys) &&
+  (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
 
 any(f::Function, xs::List) = @>> xs map(f) any
 any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
