@@ -59,11 +59,10 @@ end
 
 import Base: isempty, first
 
-export List, EmptyList, LinkedList, LazyList,
-       list, @lazy,
+export List, list, @lazy,
        prepend, rest
 
-abstract List
+abstract List <: AbstractArray
 
 type EmptyList <: List
 end
@@ -348,7 +347,7 @@ isprime(n) =
   @>>(primes,
       take_while(x -> x<=sqrt(n)),
       map(x-> n % x == 0),
-      not_any)
+      any, !)
 
 const primes = filter(isprime, range(2))
 
