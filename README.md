@@ -1,6 +1,6 @@
 # Lazy.jl
 
-Provides Julia with the cornerstones of functional programming - lazily-evluated lists and a large library of functions for working with them. Firstly, the canonical examples, in Julia:
+Provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. Firstly, the canonical examples, in Julia:
 
 ```julia
 # Note : prepends. Don't forget the semicolon!
@@ -33,7 +33,7 @@ For the unfamiliar, laziness just means that the elements of the list aren't act
 ```julia
 # Even square numbers:
 > esquares = @>> range() map(x->x^2) filter(iseven);
-First 5
+# first 5
 > take(5, esquares)
 List:
   4
@@ -73,9 +73,9 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 
 # @>> does the exact same thing, but with value treated as the *last* argument.
 
-@> x g(y, z) f == f(g(y, z, x))
+@>> x g(y, z) f == f(g(y, z, x))
 
-@> x g f(y, z) == f(y, z, g(x))
+@>> x g f(y, z) == f(y, z, g(x))
 ```
 
 
