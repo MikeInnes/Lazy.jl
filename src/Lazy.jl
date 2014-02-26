@@ -24,7 +24,7 @@ macro >(x, expr, exprs...)
     call = esc(Expr(:call, expr, x))
 
   elseif typeof(expr) == Expr && expr.head == :call
-    call = esc(Expr(:call, expr.args[1], x, expr.args[2:]...))
+      call = esc(Expr(:call, expr.args[1], x, expr.args[2:end]...))
 
   elseif typeof(expr) == Expr && expr.head == :->
     call = esc(Expr(:call, expr, x))
@@ -127,7 +127,7 @@ export seq, constantly, repeatedly, cycle, iterate, range,
        concat
 
 seq(xs::List) = xs
-seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:])
+seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
 
 seq(itr) = seq(itr, start(itr))
 seq(itr, state) =
