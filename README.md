@@ -86,7 +86,7 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 @as x 2 begin
  x^2
  x+2
-end == 4    
+end == 6
 ```
 
 ### Issues
