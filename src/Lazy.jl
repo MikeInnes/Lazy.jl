@@ -311,10 +311,12 @@ end
 const fibs = @lazy 0:big(1):(fibs + drop(1, fibs))
 
 isprime(n) =
-  @>>(primes,
-      take_while(x -> x<=sqrt(n)),
-      map(x-> n % x == 0),
-      any, !)
+  @>> primes begin
+    take_while(x -> x<=sqrt(n))
+    map(x-> n % x == 0)
+    any
+    !
+  end
 
 const primes = filter(isprime, range(2))
 

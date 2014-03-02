@@ -24,7 +24,7 @@ macro >(exs...)
   esc(thread(exs...))
 end
 
-macro >>(x, exs...)
+macro >>(exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
   thread(x, ex) =
