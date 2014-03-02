@@ -40,7 +40,7 @@ macro as (exs...)
 
   thread(as, x, ex) =
     isexpr(ex, Symbol, :->) ? Expr(:call, ex, x) :
-    isexpr(x, :block)       ? thread(as, x, subexprs(ex)) :
+    isexpr(ex, :block)      ? thread(as, x, subexprs(ex)...) :
     :(let $as = $x
         $ex
       end)
