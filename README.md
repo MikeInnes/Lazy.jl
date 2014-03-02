@@ -12,10 +12,11 @@ take(20, fibs)
 
 # isprime defined in terms of the prime numbers:
 isprime(n) =
-  @>>(primes,
-      take_while(x -> x<=sqrt(n)),
-      map(x-> n % x == 0),
-      any, !)
+  @>> primes begin
+    take_while(x -> x<=sqrt(n))
+    map(x -> n % x == 0)
+    any; !
+  end
 
 # the prime numbers defined in terms of isprime:
 primes = filter(isprime, range(2));
@@ -76,8 +77,17 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 @>> x g(y, z) f == f(g(y, z, x))
 
 @>> x g f(y, z) == f(y, z, g(x))
-```
 
+# @as lets you name the threaded argmument
+@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+
+# All threading macros work over begin blocks
+
+@as x 2 begin
+ x^2
+ x+2
+end == 4    
+```
 
 ### Issues
 
