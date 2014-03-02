@@ -1,11 +1,13 @@
 # Threading macros
 
+export @>, @>>, @as
+
 isexpr{T}(x::T, ts...) = T in ts
 isexpr(x::Expr, ts...) = x.head in ts
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
 
-macro >(exs...)
+macro > (exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
   thread(x, ex) =
@@ -24,7 +26,7 @@ macro >(exs...)
   esc(thread(exs...))
 end
 
-macro >>(exs...)
+macro >> (exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
   thread(x, ex) =
@@ -39,6 +41,25 @@ macro >>(exs...)
     end
 
   thread(x, exs...) = reduce(thread, x, exs)
+
+  esc(thread(exs...))
+end
+
+macro as (exs...)
+  thread(as, x) = isexpr(x, :block) ? thread(as, subexprs(x)...) : x
+
+  thread(as, x, ex) =
+    if isexpr(ex, Symbol, :->)
+      Expr(:call, ex, x)
+    elseif isexpr(x, :block)
+      thread(as, x, subexprs(ex))
+    else
+      :(let $as = $x
+          $ex
+        end)
+    end
+
+  thread(as, x, exs...) = reduce((x, ex) -> thread(as, x, ex), x, exs)
 
   esc(thread(exs...))
 end

@@ -6,7 +6,7 @@ include("Threading.jl")
 # Utilities
 ############
 
-export @listable, @>, @>>
+export @listable
 
 macro listable(f)
   if typeof(f) == Expr && f.head == :tuple
@@ -314,8 +314,7 @@ isprime(n) =
   @>> primes begin
     take_while(x -> x<=sqrt(n))
     map(x-> n % x == 0)
-    any
-    !
+    any; !
   end
 
 const primes = filter(isprime, range(2))
