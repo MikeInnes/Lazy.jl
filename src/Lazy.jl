@@ -264,7 +264,7 @@ partition(n, xs::List; step = n, pad = nothing) =
       if len < n
         pad == nothing ? [] : list(l * take(n-len, pad))
       else
-        l:partition(n, drop(step, xs); step = n, pad = pad)
+        l:partition(n, drop(step, xs); step = step, pad = pad)
       end
     end
 
