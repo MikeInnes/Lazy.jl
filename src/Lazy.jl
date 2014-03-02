@@ -90,7 +90,7 @@ export seq, constantly, repeatedly, cycle, iterate, range,
        concat
 
 seq(xs::List) = xs
-seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:])
+seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
 
 seq(itr) = seq(itr, start(itr))
 seq(itr, state) =
@@ -227,7 +227,7 @@ partition(n, xs::List; step = n, pad = nothing) =
       if len < n
         pad == nothing ? [] : list(l * take(n-len, pad))
       else
-        l:partition(n, drop(step, xs); step = n, pad = pad)
+        l:partition(n, drop(step, xs); step = step, pad = pad)
       end
     end
 
