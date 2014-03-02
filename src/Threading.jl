@@ -1,38 +1,40 @@
 # Threading macros
 
-thread_left(x) = thread_left(filter(x -> !isa(x,Expr) || x.head != :line, x.args)...)
+isexpr{T}(x::T, ts...) = T in ts
+isexpr(x::Expr, ts...) = x.head in ts
 
-function thread_left(x, expr, exprs...)
-  if typeof(expr) == Symbol
-    call = Expr(:call, expr, x)
+subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
 
-  elseif typeof(expr) == Expr && expr.head in [:call, :macrocall]
-    call = Expr(expr.head, expr.args[1], x, expr.args[2:]...)
+macro >(exs...)
+  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
-  elseif typeof(expr) == Expr && expr.head == :->
-    call = Expr(:call, expr, x)
+  thread(x, ex) =
+    if isexpr(ex, Symbol, :->)
+      Expr(:call, ex, x)
+    elseif isexpr(ex, :call, :macrocall)
+      Expr(ex.head, ex.args[1], x, ex.args[2:end]...)
+    elseif isexpr(ex, :block)
+      thread(x, subexprs(ex)...)
+    else
+      error("Unsupported expression $ex in @>")
+    end
 
-  else
-    error("Unsupported expression $expr in @>")
-  end
-  isempty(exprs) ? call : :(@> $call $(exprs...))
-end
+  thread(x, exs...) = reduce(thread, x, exs)
 
-macro >(exprs...)
-  esc(thread_left(exprs...))
+  esc(thread(exs...))
 end
 
 macro >>(x, expr, exprs...)
-  if typeof(expr) == Expr && expr.head == :tuple
+  if isa(expr, Expr) && expr.head == :tuple
     return Expr(:macrocall, symbol("@>>"), esc(x), map(esc,expr.args)..., map(esc,exprs)...)
 
   elseif typeof(expr) == Symbol
     call = esc(Expr(:call, expr, x))
 
-  elseif typeof(expr) == Expr && expr.head == :call
+  elseif isa(expr, Expr) && expr.head == :call
     call = esc(Expr(:call, expr.args..., x))
 
-  elseif typeof(expr) == Expr && expr.head == :->
+  elseif isa(expr, Expr) && expr.head == :->
       call = esc(Expr(:call, expr, x))
   else
     error("Unsupported expression $expr in @>>")
