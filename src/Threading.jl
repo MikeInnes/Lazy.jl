@@ -24,20 +24,21 @@ macro >(exs...)
   esc(thread(exs...))
 end
 
-macro >>(x, expr, exprs...)
-  if isa(expr, Expr) && expr.head == :tuple
-    return Expr(:macrocall, symbol("@>>"), esc(x), map(esc,expr.args)..., map(esc,exprs)...)
+macro >>(x, exs...)
+  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
-  elseif typeof(expr) == Symbol
-    call = esc(Expr(:call, expr, x))
+  thread(x, ex) =
+    if isexpr(ex, Symbol, :->)
+      Expr(:call, ex, x)
+    elseif isexpr(ex, :call, :macrocall)
+      Expr(ex.head, ex.args..., x)
+    elseif isexpr(ex, :block)
+      thread(x, subexprs(ex)...)
+    else
+      error("Unsupported expression $ex in @>>")
+    end
 
-  elseif isa(expr, Expr) && expr.head == :call
-    call = esc(Expr(:call, expr.args..., x))
+  thread(x, exs...) = reduce(thread, x, exs)
 
-  elseif isa(expr, Expr) && expr.head == :->
-      call = esc(Expr(:call, expr, x))
-  else
-    error("Unsupported expression $expr in @>>")
-  end
-  isempty(exprs) ? call : :(@>> $call $(map(esc,exprs)...))
+  esc(thread(exs...))
 end
