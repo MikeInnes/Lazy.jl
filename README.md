@@ -2,6 +2,10 @@
 
 [![Gitter chat](https://badges.gitter.im/one-more-minute/Lazy.jl.png)](https://gitter.im/one-more-minute/Lazy.jl)
 
+```julia
+Pkg.add("Lazy")
+```
+
 Provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. Firstly, the canonical examples, in Julia:
 
 ```julia
