@@ -36,8 +36,9 @@ concat(xs::List, ys::List) =
   @lazy isempty(xs) ? ys : prepend(first(xs), concat(rest(xs), ys))
 
 *(xs::List, ys::List) = concat(xs, ys)
-*(xs, ys::List) = concat(seq(xs), ys)
-*(xs::List, ys) = concat(xs, seq(ys))
+*(xs::BitArray, ys::List) = concat(seq(xs), ys)
+*(xs::AbstractArray, ys::List) = concat(seq(xs), ys)
+*(xs::List, ys::AbstractArray) = concat(xs, seq(ys))
 
 # ------------
 # Manipulation
