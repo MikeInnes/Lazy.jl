@@ -1,11 +1,25 @@
 # Threading macros
 
-export @>, @>>, @as
+export @>, @>>, @as, @cond
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr{T}(x::T, ts...) = T in ts
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
+
+macro cond(test, exprs)
+  @assert isexpr(exprs, :block) "@cond requires a begin block"
+  exprs = subexprs(exprs)
+  length(exprs) == 0 && return nothing
+  
+  test_expr(test, val) = isexpr(test, Symbol) ? :($test($val)) : :(let _ = $val; $test; end)
+  
+  thread(test, val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
+  thread(test, val, yes) = thread(test, val, yes, :(error("No match in @cond")))
+  thread(test, val, yes, rest...) = thread(test, val, yes, thread(test, rest...))
+  
+  esc(thread(test, exprs...))
+end
 
 macro > (exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
