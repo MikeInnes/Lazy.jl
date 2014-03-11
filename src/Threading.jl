@@ -7,7 +7,7 @@ isexpr{T}(x::T, ts...) = T in ts
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
 
-macro cond(test, exprs)
+macro cond (test, exprs)
   @assert isexpr(exprs, :block) "@cond requires a begin block"
   exprs = subexprs(exprs)
   length(exprs) == 0 && return nothing
@@ -15,7 +15,7 @@ macro cond(test, exprs)
   test_expr(test, val) = isexpr(test, Symbol) ? :($test($val)) : :(let _ = $val; $test; end)
   
   thread(test, val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
-  thread(test, val, yes) = thread(test, val, yes, :(error("No match in @cond")))
+  thread(test, val, yes) = thread(test, val, yes, :(error($"No match for $test in @cond")))
   thread(test, val, yes, rest...) = thread(test, val, yes, thread(test, rest...))
   
   esc(thread(test, exprs...))
