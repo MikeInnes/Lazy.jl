@@ -11,7 +11,7 @@ macro switch (test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
   exprs = subexprs(exprs)
   length(exprs) == 0 && return nothing
-  length(exprs) == 1 && return exprs[1]
+  length(exprs) == 1 && return esc(exprs[1])
   
   test_expr(test, val) =
     test == :_      ? val :
