@@ -1,6 +1,6 @@
 # Threading macros
 
-export @>, @>>, @as, @cond
+export @>, @>>, @as, @switch
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr{T}(x::T, ts...) = T in ts
@@ -13,7 +13,10 @@ macro switch (test, exprs)
   length(exprs) == 0 && return nothing
   length(exprs) == 1 && return exprs[1]
   
-  test_expr(test, val) = isexpr(test, Symbol) ? :($test==$val) : :(let _ = $val; $test; end)
+  test_expr(test, val) =
+    test == :_      ? val :
+    isa(test, Expr) ? :(let _ = $val; $test; end) :
+                      :($test==$val)
   
   thread(test, val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
   thread(test, val, yes) = thread(test, val, yes, :(error($"No match for $test in @switch")))
