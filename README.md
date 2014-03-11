@@ -6,7 +6,9 @@
 Pkg.add("Lazy")
 ```
 
-Provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. Firstly, the canonical examples, in Julia:
+Lazy.jl provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. It's also a repository for some neat macros, which you might be useful to you even if you don't want lazy lists (see below).
+
+Firstly, the canonical examples, in Julia:
 
 ```julia
 # Note : prepends. Don't forget the semicolon!
@@ -62,7 +64,7 @@ But lazy lists aren't just for mathematical tricks; you can use them very practi
 
 The other thing that seperates lists from arrays is the huge amount of functionality that comes with most functional programming libraries, including Lazy.jl - if you know your way around them, most data manipulation becomes a simple case of chaining a few functions together. Even if you do ultimately need arrays for speed, you could do worse than to prototype with lists.
 
-### Threading Macros
+### Macros
 
 The threading macros will pipe values through functions, a bit like the `|>` operator but far more flexible. They can make code a *lot* cleaner by putting function calls in the order they are applied. The best way to understand them is by example:
 
@@ -94,6 +96,34 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
  x+2
 end == 6
 ```
+
+Lazy.jl also provides a switch statement of sorts via a macro.
+
+```julia
+@switch x begin
+  1; "x equals one!"
+  2; "x equals two!"
+  "x equals something else!"
+end
+```
+
+However, it's a bit more general than a regular switch in that you can test more than just equality:
+
+```julia
+@switch isa(x, _) begin
+  Integer; "x is an integer!"
+  FloatingPoint; "x is a float!"
+  "x is something else!"
+end
+
+@switch _ begin
+  a > b;  "more than!"
+  a < b;  "less than!"
+  a == b; "equal!"       # Note that this level of enthusiasm is not mandatory.
+end
+```
+
+Where `_` is replaced by the value for testing in each case. The final expression, if there is one, is used as the default value; if there is no default and nothing matches an error will be thrown.
 
 ### Issues
 
