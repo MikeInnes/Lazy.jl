@@ -83,6 +83,7 @@ end
 ########
 
 include("liblazy.jl")
+include("collections.jl")
 
 # -----
 # Eager

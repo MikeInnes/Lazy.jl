@@ -48,7 +48,8 @@ import Base: length, map, reduce, filter, reverse
 
 export riffle, interpose, take, drop, take_last, drop_last, take_nth, take_while, drop_while,
        lazymap, reductions, remove, dorun, foreach, distinct,
-       group_by, partition, partition_by, split_at, split_by
+       group_by, partition, partition_by, split_at, split_by,
+       walk, prewalk, postwalk
 
 riffle(ls...) = riffle(map(seq, ls)...)
 riffle(ls::List...) =
@@ -162,6 +163,12 @@ split_by(p, xs::List) =
     run, @lazy drop(length(run), xs)
   end
 
+walk(inner, outer, xs::List) = @>> xs map(inner) outer
+walk(inner, outer, x) = outer(x)
+
+prewalk(f, xs)  = walk(x -> prewalk(f, x), identity, f(xs))
+postwalk(f, xs) = walk(x -> postwalk(f, x), f, xs)
+
 # ----------
 # Predicates    
 # ----------
@@ -170,7 +177,7 @@ import Base: any, all
 
 ==(xs::List, ys::List) =
   isempty(xs) == isempty(ys) &&
-  (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
+    (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
 
 any(f::Function, xs::List) = @>> xs map(f) any
 any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
