@@ -1,6 +1,6 @@
 # Threading macros
 
-export @>, @>>, @as, @switch
+export @>, @>>, @as, @switch, @or, @dotimes, @once_then
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr{T}(x::T, ts...) = T in ts
@@ -12,16 +12,16 @@ macro switch (test, exprs)
   exprs = subexprs(exprs)
   length(exprs) == 0 && return nothing
   length(exprs) == 1 && return esc(exprs[1])
-  
+
   test_expr(test, val) =
     test == :_      ? val :
     isa(test, Expr) ? :(let _ = $val; $test; end) :
                       :($test==$val)
-  
+
   thread(test, val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
   thread(test, val, yes) = thread(test, val, yes, :(error($"No match for $test in @switch")))
   thread(test, val, yes, rest...) = thread(test, val, yes, thread(test, rest...))
-  
+
   esc(thread(test, exprs...))
 end
 
@@ -66,4 +66,31 @@ macro as (exs...)
   thread(as, x, exs...) = reduce((x, ex) -> thread(as, x, ex), x, exs)
 
   esc(thread(exs...))
+end
+
+macro or (exs...)
+  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
+
+  thread(x, xs...) =
+    :(let x = $(esc(x))
+        !(x == nothing || x == false) ? x : $(thread(xs...))
+      end)
+
+  thread(exs...)
+end
+
+macro dotimes(n, body)
+  quote
+    for i = 1:$(esc(n))
+      $(esc(body))
+    end
+  end
+end
+
+macro once_then(expr::Expr)
+  @assert expr.head == :while
+  esc(quote
+    $(expr.args[2]) # body of loop
+    $expr # loop
+  end)
 end
