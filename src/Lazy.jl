@@ -4,7 +4,7 @@ module Lazy
 # Utilities
 ############
 
-include("threading.jl")
+include("macros.jl")
 
 export @listable
 
