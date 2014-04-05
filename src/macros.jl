@@ -1,3 +1,5 @@
+#jewel module Lazy
+
 # Threading macros
 
 export @>, @>>, @as, @switch, @or, @dotimes, @once_then
@@ -18,11 +20,11 @@ macro switch (test, exprs)
     isa(test, Expr) ? :(let _ = $val; $test; end) :
                       :($test==$val)
 
-  thread(test, val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
-  thread(test, val, yes) = thread(test, val, yes, :(error($"No match for $test in @switch")))
-  thread(test, val, yes, rest...) = thread(test, val, yes, thread(test, rest...))
+  thread(val, yes, no) = :($(test_expr(test, val)) ? $yes : $no)
+  thread(val, yes) = thread(val, yes, :(error($"No match for $test in @switch")))
+  thread(val, yes, rest...) = thread(val, yes, thread(rest...))
 
-  esc(thread(test, exprs...))
+  esc(thread(exprs...))
 end
 
 macro > (exs...)
@@ -53,17 +55,17 @@ macro >> (exs...)
   esc(thread(exs...))
 end
 
-macro as (exs...)
-  thread(as, x) = isexpr(x, :block) ? thread(as, subexprs(x)...) : x
+macro as (as, exs...)
+  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
-  thread(as, x, ex) =
+  thread(x, ex) =
     isexpr(ex, Symbol, :->) ? Expr(:call, ex, x) :
-    isexpr(ex, :block)      ? thread(as, x, subexprs(ex)...) :
+    isexpr(ex, :block)      ? thread(x, subexprs(ex)...) :
     :(let $as = $x
         $ex
       end)
 
-  thread(as, x, exs...) = reduce((x, ex) -> thread(as, x, ex), x, exs)
+  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), x, exs)
 
   esc(thread(exs...))
 end
