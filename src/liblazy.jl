@@ -1,3 +1,5 @@
+#jewel module Lazy
+
 # ------------
 # Construction
 # ------------
@@ -49,7 +51,7 @@ import Base: length, map, reduce, filter, reverse
 export riffle, interpose, take, drop, take_last, drop_last, take_nth, take_while, drop_while,
        lazymap, reductions, remove, dorun, foreach, distinct,
        group_by, partition, partition_by, split_at, split_by,
-       walk, prewalk, postwalk
+       walk, prewalk, postwalk, flatten
 
 riffle(ls...) = riffle(map(seq, ls)...)
 riffle(ls::List...) =
@@ -72,6 +74,8 @@ drop(n::Integer, l::List) =
 
 take_last(n::Integer, l::List) =
   @lazy isempty(drop(n, l)) ? l : take_last(n, rest(l))
+
+Base.last(l::List) = @>> l take_last(1) first
 
 drop_last(n::Integer, l::List) =
   map((x,_)->x, l, drop(n,l))
@@ -169,8 +173,11 @@ walk(inner, outer, x) = outer(x)
 prewalk(f, xs)  = walk(x -> prewalk(f, x), identity, f(xs))
 postwalk(f, xs) = walk(x -> postwalk(f, x), f, xs)
 
+flatten(x) = x
+flatten(xs::List) = reduce((xs, x) -> isa(x, List) ? xs*x : xs*list(x), list(), map(flatten, xs))
+
 # ----------
-# Predicates    
+# Predicates
 # ----------
 
 import Base: any, all
