@@ -127,7 +127,7 @@ Where `_` is replaced by the value for testing in each case. The final expressio
 
 ### Issues
 
-Due to a bug in the current version of Julia, `MethodError`s will be obscured by the `display()` function. For example:
+Due to a bug in Julia 0.2, `MethodError`s will be obscured by the `display()` function. For example:
 
 ```julia
 > [:a*:b]
@@ -140,7 +140,7 @@ ERROR: no method display(LazyList,)
  in display at multimedia.jl:158
 ```
 
-I've submitted a patch for this, but for now just bear in mind that the `no method display(LazyList,)` error is due to some kind of `MethodError` in your own code.
+This is fixed in 0.3.
 
 ### Function Reference
 
