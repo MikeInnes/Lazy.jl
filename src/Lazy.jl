@@ -120,12 +120,13 @@ next(::List, xs::List) = first(xs), rest(xs)
 Base.show(io::IO, xs::List) =
   foreach(x->print(io,x), ["("] * interpose(xs, " ") * [")"])
 
-function Base.display(d::TextDisplay, xs::List)
-  if isempty(xs) println(d.io, "List()"); return; end
-  print(d.io, "List:")
+function Base.writemime(io::IO, ::MIME"text/plain", xs::List)
+  isempty(xs) && return println(io, "List()")
+
+  print(io, "List:")
   for x in xs
-    print(d.io, "\n  ")
-    show(d.io, x)
+    print(io, "\n  ")
+    show(io, x)
   end
 end
 
