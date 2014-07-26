@@ -15,3 +15,5 @@ function Base.split{T}(xs::Vector{T}, x; keepempty = false)
   end
   return result
 end
+
+# TODO: frequencies
