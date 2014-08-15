@@ -1,8 +1,6 @@
-#jewel module Lazy
-
 # Threading macros
 
-export @>, @>>, @as, @switch, @or, @dotimes, @once_then
+export @>, @>>, @as, @switch, @or, @dotimes, @once_then, @defonce, isexpr
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr{T}(x::T, ts...) = T in ts
@@ -95,4 +93,29 @@ macro once_then(expr::Expr)
     $(expr.args[2]) # body of loop
     $expr # loop
   end)
+end
+
+# Stop Julia from complaining about redifined consts/types -
+# @defonce type MyType
+#   ...
+# end
+# or
+# @defonce const pi = 3.14
+
+macro defonce(typedef::Expr)
+  if typedef.head == :type
+    name = typedef.args[2]
+  elseif typedef.head == :typealias || typedef.head == :abstract
+    name = typedef.args[1]
+  elseif typedef.head == :const
+    name = typedef.args[1].args[1]
+  else
+    error("@defonce called with $(typedef.head) expression")
+  end
+
+  typeof(name) == Expr && (name = name.args[1]) # Type hints
+
+  :(if !isdefined($(Expr(:quote, name)))
+      $(esc(typedef))
+    end)
 end
