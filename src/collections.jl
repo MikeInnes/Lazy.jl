@@ -13,6 +13,7 @@ function Base.split{T}(xs::Vector{T}, x; keep = true)
       push!(result[end], xs[i])
     end
   end
+  isempty(result[end]) && pop!(result)
   return result
 end
 
