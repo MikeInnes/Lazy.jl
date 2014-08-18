@@ -2,12 +2,12 @@
 
 walk(inner, outer, xs::Array) = @>> xs map(inner) outer
 
-function Base.split{T}(xs::Vector{T}, x; keepempty = false)
+function Base.split{T}(xs::Vector{T}, x; keep = true)
   result = Vector{T}[]
   push!(result, T[])
   for i = 1:length(xs)
     if xs[i] == x
-      (keepempty || !(isempty(result[end]) || i == length(xs))) &&
+      (keep || !(isempty(result[end]) || i == length(xs))) &&
         push!(result, T[])
     else
       push!(result[end], xs[i])
