@@ -34,3 +34,7 @@ function Base.getindex{K, V}(d::Dict{K, V}, ks::Vector{K})
   end
   return vs
 end
+
+for f in (:takewhile, :splitby)
+  @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
+end
