@@ -25,7 +25,7 @@ import Base: isempty, first, colon
 export List, list, @lazy,
        prepend, rest
 
-abstract List <: AbstractArray
+abstract List
 
 type EmptyList <: List
 end
