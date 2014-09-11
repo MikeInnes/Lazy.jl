@@ -17,4 +17,12 @@ function Base.split{T}(xs::Vector{T}, x; keep = true)
   return result
 end
 
-# TODO: frequencies
+export frequencies
+
+function frequencies(xs)
+  freqs = (eltype(xs)=>Int)[]
+  for x in xs
+    freqs[x] = get(freqs, x, 0) + 1
+  end
+  return freqs
+end
