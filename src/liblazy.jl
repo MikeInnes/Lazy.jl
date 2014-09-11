@@ -1,5 +1,3 @@
-#jewel module Lazy
-
 # ------------
 # Construction
 # ------------
@@ -48,9 +46,9 @@ concat(xs::List, ys::List) =
 
 import Base: length, map, reduce, filter, reverse
 
-export riffle, interpose, take, drop, take_last, drop_last, take_nth, take_while, drop_while,
+export riffle, interpose, take, drop, take_last, drop_last, take_nth, takewhile, drop_while,
        lazymap, reductions, remove, dorun, foreach, distinct,
-       group_by, partition, partition_by, split_at, split_by,
+       group_by, partition, partition_by, splitat, splitby,
        walk, prewalk, postwalk, flatten
 
 riffle(ls...) = riffle(map(seq, ls)...)
@@ -87,8 +85,8 @@ for f in [:take :drop :take_last :drop_last :take_nth]
   @eval $f(l::List, n::Integer) = $f(n, l)
 end
 
-take_while(pred::Function, l::List) =
-  @lazy isempty(l) || !pred(first(l)) ? [] : first(l):take_while(pred, rest(l))
+takewhile(pred::Function, l::List) =
+  @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, rest(l))
 
 drop_while(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? l : drop_while(pred, rest(l))
@@ -156,16 +154,13 @@ partition(n, xs::List; step = n, pad = nothing) =
 
 partition_by(f, xs::List) =
   @lazy isempty(xs) ? [] :
-    let x = first(xs), v = f(x), run = take_while(x->f(x)==v, rest(xs))
+    let x = first(xs), v = f(x), run = takewhile(x->f(x)==v, rest(xs))
       prepend(x,run):partition_by(f, @lazy drop(length(run)+1, xs))
     end
 
-split_at(n, xs::List) = (take(n, xs), drop(n, xs))
+splitat(n, xs::List) = (take(n, xs), drop(n, xs))
 
-split_by(p, xs::List) =
-  let run = take_while(p, xs)
-    run, @lazy drop(length(run), xs)
-  end
+splitby(p::Function, xs::List) = takewhile(p, xs), drop_while(p, xs)
 
 walk(inner, outer, xs::List) = @>> xs map(inner) outer
 walk(inner, outer, x) = outer(x)
