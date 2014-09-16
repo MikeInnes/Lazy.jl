@@ -45,10 +45,8 @@ end
 
 # Empty List
 
-# first(::EmptyList) = nothing
-# rest(l::EmptyList) = l
-first(::EmptyList) = throw(BoundsError())
-rest(::EmptyList) = throw(BoundsError())
+first(::EmptyList) = nothing
+rest(l::EmptyList) = l
 isempty(::EmptyList) = true
 
 # Lists
