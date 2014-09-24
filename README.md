@@ -125,23 +125,6 @@ end
 
 Where `_` is replaced by the value for testing in each case. The final expression, if there is one, is used as the default value; if there is no default and nothing matches an error will be thrown.
 
-### Issues
-
-Due to a bug in Julia 0.2, `MethodError`s will be obscured by the `display()` function. For example:
-
-```julia
-> [:a*:b]
-ERROR: no method *(Symbol,Symbol)
-
-> @lazy [:a*:b]
-Evaluation succeeded, but an error occurred while showing value of type LazyList:
-
-ERROR: no method display(LazyList,)
- in display at multimedia.jl:158
-```
-
-This is fixed in 0.3.
-
 ### Function Reference
 
 ```julia
