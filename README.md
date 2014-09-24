@@ -182,6 +182,8 @@ list(1,2,3) * list(4,5,6) == (1 2 3 4 5 6)
 first(list(1,2,3)) == 1
 rest(list(1,2,3)) == (2 3)
 
+flatten(list(1,2,list(3,4))) == (1 2 3 4)
+
 riffle
 interpose
 take
