@@ -106,7 +106,7 @@ end
 # @defonce const pi = 3.14
 
 macro defonce(typedef::Expr)
-  name = (typedef.head == :type) ? typedef.args[2] : namify(typedef)
+  name = namify(typedef.head == :type ? typedef.args[2] : typedef)
 
   :(if !isdefined($(Expr(:quote, name)))
       $(esc(typedef))
