@@ -1,9 +1,12 @@
 # Threading macros
 
-export @>, @>>, @as, @switch, @or, @dotimes, @once_then, @defonce, isexpr
+export @>, @>>, @as, @switch, @or, @dotimes, @once_then, @defonce, isexpr, namify
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr{T}(x::T, ts...) = T in ts
+
+namify(s::Symbol) = s
+namify(ex::Expr) = namify(ex.args[1])
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
 
