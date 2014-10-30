@@ -3,7 +3,7 @@
 export @>, @>>, @as, @switch, @or, @dotimes, @once_then, @defonce, isexpr, namify
 
 isexpr(x::Expr, ts...) = x.head in ts
-isexpr{T}(x::T, ts...) = T in ts
+isexpr(x, ts...) = any(T->isa(T, Type) && isa(x, T), ts)
 
 namify(s::Symbol) = s
 namify(ex::Expr) = namify(ex.args[1])
