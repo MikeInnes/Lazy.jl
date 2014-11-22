@@ -124,8 +124,8 @@ c(xs...) = Any[xs...]
 
 macro d(xs...)
   if VERSION < v"0.4-"
-    Expr(:typed_dict, :(Any=>Any), xs...)
+    Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
   else
-    :(Dict{Any, Any}($(xs...)))
+    :(Dict{Any, Any}($(map(esc, xs)...)))
   end
 end
