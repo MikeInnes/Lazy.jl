@@ -116,3 +116,16 @@ macro defonce(typedef::Expr)
       $(esc(typedef))
     end)
 end
+
+# Other syntax
+
+export c, @d
+c(xs...) = Any[xs...]
+
+macro d(xs...)
+  if VERSION < v"0.4-"
+    Expr(:typed_dict, :(Any=>Any), xs...)
+  else
+    :(Dict{Any, Any}($(xs...)))
+  end
+end
