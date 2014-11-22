@@ -1,6 +1,6 @@
 # Threading macros
 
-export @>, @>>, @as, @switch, @or, @dotimes, @once_then, @defonce, isexpr, namify
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @once_then, @defonce, isexpr, namify
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr(x, ts...) = any(T->isa(T, Type) && isa(x, T), ts)
@@ -69,6 +69,10 @@ macro as (as, exs...)
   thread(x, exs...) = reduce((x, ex) -> thread(x, ex), x, exs)
 
   esc(thread(exs...))
+end
+
+macro _ (args...)
+  :(@as $(esc(:_)) $(map(esc, args)...))
 end
 
 macro or (exs...)
