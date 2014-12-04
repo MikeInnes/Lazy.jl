@@ -168,8 +168,8 @@ walk(inner, outer, x) = outer(x)
 prewalk(f, xs)  = walk(x -> prewalk(f, x), identity, f(xs))
 postwalk(f, xs) = walk(x -> postwalk(f, x), f, xs)
 
-flatten(x) = x
-flatten(xs::List) = reduce((xs, x) -> isa(x, List) ? xs*x : xs*list(x), list(), map(flatten, xs))
+flatten(x) = list(x)
+flatten(xs::List) = reduce((xs, x) -> xs*flatten(x), list(), xs)
 
 # ----------
 # Predicates
