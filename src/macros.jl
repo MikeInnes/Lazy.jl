@@ -113,13 +113,15 @@ macro once_then(expr::Expr)
   end)
 end
 
-# Stop Julia from complaining about redifined consts/types -
-# @defonce type MyType
-#   ...
-# end
-# or
-# @defonce const pi = 3.14
+"""
+Stop Julia from complaining about redifined consts/types –
 
+    @defonce type MyType
+      ...
+    end
+    or
+    @defonce const pi = 3.14
+"""
 macro defonce(typedef::Expr)
   name = namify(typedef.head == :type ? typedef.args[2] : typedef)
 
