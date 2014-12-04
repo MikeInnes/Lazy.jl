@@ -10,6 +10,13 @@ namify(ex::Expr) = namify(ex.args[1])
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
 
+function unblock(ex)
+  isexpr(ex, :block) || return ex
+  exs = filter(ex->!isexpr(ex, :line), ex.args)
+  length(exs) == 1 || return ex
+  return exs[1]
+end
+
 macro switch (test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
   exprs = subexprs(exprs)
