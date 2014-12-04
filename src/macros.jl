@@ -17,6 +17,10 @@ function unblock(ex)
   return exs[1]
 end
 
+macro expand(ex)
+  :(macroexpand($(Expr(:quote, ex))))
+end
+
 macro switch (test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
   exprs = subexprs(exprs)
