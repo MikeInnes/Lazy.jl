@@ -1,6 +1,7 @@
 # Threading macros
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @once_then, @defonce, isexpr, namify
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @once_then, @defonce, @expand, @cond,
+  isexpr, namify, unblock
 
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr(x, ts...) = any(T->isa(T, Type) && isa(x, T), ts)
