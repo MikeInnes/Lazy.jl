@@ -130,6 +130,22 @@ macro defonce(typedef::Expr)
     end)
 end
 
+"""
+Compile-time conditional, e.g.
+
+    @cond VERSION > v"0.4-" ? Dict(1=>2) : [1=>2]
+
+Also supports if-else chains via ternary or block syntax.
+"""
+macro cond(ex)
+  ex = unblock(ex)
+  isexpr(ex, :if) || return ex
+
+  eval(current_module(), ex.args[1]) ?
+    esc(ex.args[2]) :
+    :(@cond $(esc(ex.args[3])))
+end
+
 # Other syntax
 
 export c, @d
