@@ -185,4 +185,4 @@ any(f::Function, xs::List) = @>> xs map(f) any
 any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
 
 all(f::Function, xs::List) = @>> xs map(f) all
-all(xs::List) = isempty(xs) ? true : first(xs) && rest(xs)
+all(xs::List) = isempty(xs) ? true : first(xs) && all(rest(xs))
