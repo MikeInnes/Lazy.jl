@@ -1,6 +1,6 @@
 # Threading macros
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @once_then, @defonce, @expand, @cond,
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond,
   isexpr, namify, unblock
 
 isexpr(x::Expr, ts...) = x.head in ts
@@ -23,7 +23,7 @@ More convenient macro expansion, e.g.
 
     @expand @time foo()
 """
-macro expand(ex)
+macro expand (ex)
   :(macroexpand($(Expr(:quote, ex))))
 end
 
@@ -171,7 +171,7 @@ macro or (exs...)
 end
 
 "Repeat `body` `n` times."
-macro dotimes(n, body)
+macro dotimes (n, body)
   quote
     for i = 1:$(esc(n))
       $(esc(body))
@@ -183,7 +183,7 @@ end
 A do-while loop – executes the while loop once regardless of the
 condition, then tests the condition before subsequen iterations.
 """
-macro once_then(expr::Expr)
+macro oncethen (expr::Expr)
   @assert expr.head == :while
   esc(quote
     $(expr.args[2]) # body of loop
@@ -200,7 +200,7 @@ Stop Julia from complaining about redifined consts/types –
     or
     @defonce const pi = 3.14
 """
-macro defonce(typedef::Expr)
+macro defonce (typedef::Expr)
   name = namify(typedef.head == :type ? typedef.args[2] : typedef)
 
   :(if !isdefined($(Expr(:quote, name)))
@@ -215,7 +215,7 @@ Compile-time conditional, e.g.
 
 Also supports if-else chains via ternary or block syntax.
 """
-macro cond(ex)
+macro cond (ex)
   ex = unblock(ex)
   isexpr(ex, :if) || return ex
 
