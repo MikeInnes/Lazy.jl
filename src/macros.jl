@@ -18,10 +18,43 @@ function unblock(ex)
   return exs[1]
 end
 
+"""
+More convenient macro expansion, e.g.
+
+    @expand @time foo()
+"""
 macro expand(ex)
   :(macroexpand($(Expr(:quote, ex))))
 end
 
+"""
+A switch statement of sorts:
+
+    @switch x begin
+      1; "x equals one!"
+      2; "x equals two!"
+      "x equals something else!"
+    end
+
+However, it's a bit more general than a regular switch in that
+you can test more than just equality:
+
+    @switch isa(x, _) begin
+      Integer; "x is an integer!"
+      FloatingPoint; "x is a float!"
+      "x is something else!"
+    end
+
+    @switch _ begin
+      a > b;  "more than!"
+      a < b;  "less than!"
+      a == b; "equal!"       # Note that this level of enthusiasm is not mandatory.
+    end
+
+Where `_` is replaced by the value for testing in each case. The final
+expression, if there is one, is used as the default value; if there is
+no default and nothing matches an error will be thrown.
+"""
 macro switch (test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
   exprs = subexprs(exprs)
@@ -40,6 +73,22 @@ macro switch (test, exprs)
   esc(thread(exprs...))
 end
 
+"""
+The threading macro is like a more flexible version of the `|>` operator.
+
+    @> x f = f(x)
+    @> x g f == f(g(x))
+    @> x a b c d e == e(d(c(b(a(x)))))
+
+Unlike |>, functions can have arguments - the value
+preceding a function will be treated as its first argument
+
+    @> x g(y, z) f == f(g(x, y, z))
+
+    @> x g f(y, z) == f(g(x), y, z)
+
+See also `@>>`, `@as`.
+"""
 macro > (exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
@@ -54,6 +103,13 @@ macro > (exs...)
   esc(thread(exs...))
 end
 
+"""
+Same as `@>`, but threads the last argument.
+
+  @>> x g(y, z) f == f(g(y, z, x))
+
+  @>> x g f(y, z) == f(y, z, g(x))
+"""
 macro >> (exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
@@ -68,6 +124,19 @@ macro >> (exs...)
   esc(thread(exs...))
 end
 
+"""
+# @as lets you name the threaded argmument
+@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+
+# All threading macros work over begin blocks
+
+@as x 2 begin
+ x^2
+ x+2
+end == 6
+
+`@_` is a version of `@as` which defaults to `_` as the argument name.
+"""
 macro as (as, exs...)
   thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
 
@@ -83,6 +152,9 @@ macro as (as, exs...)
   esc(thread(exs...))
 end
 
+"""
+Same as `@as` but uses `_` as the argmument name.
+"""
 macro _ (args...)
   :(@as $(esc(:_)) $(map(esc, args)...))
 end
@@ -98,6 +170,7 @@ macro or (exs...)
   thread(exs...)
 end
 
+"Repeat `body` `n` times."
 macro dotimes(n, body)
   quote
     for i = 1:$(esc(n))
@@ -106,6 +179,10 @@ macro dotimes(n, body)
   end
 end
 
+"""
+A do-while loop – executes the while loop once regardless of the
+condition, then tests the condition before subsequen iterations.
+"""
 macro once_then(expr::Expr)
   @assert expr.head == :while
   esc(quote
