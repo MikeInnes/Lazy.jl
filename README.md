@@ -16,7 +16,7 @@ Firstly, the canonical examples, in Julia:
 fibs = @lazy 0:1:(fibs + drop(1, fibs));
 
 take(20, fibs)
-#=> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
+#> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
 
 # isprime defined in terms of the prime numbers:
 isprime(n) =
@@ -30,7 +30,7 @@ isprime(n) =
 primes = filter(isprime, range(2));
 
 take(20, primes)
-#=> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71)
+#> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71)
 ```
 
 If you've done any functional programming, you already know how to use Lazy.jl; just head down to the reference below to see what functions are available.
