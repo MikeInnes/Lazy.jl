@@ -209,6 +209,21 @@ macro defonce (typedef::Expr)
 end
 
 """
+End-less let block, e.g.
+
+    @with (x = 1, y = 2),
+      x+y
+"""
+macro with (ex)
+  bindings, body = ex.args[1].args, ex.args[2]
+  ex = :(let
+           $body
+         end)
+  push!(ex.args, bindings...)
+  return esc(ex)
+end
+
+"""
 Compile-time conditional, e.g.
 
     @cond VERSION > v"0.4-" ? Dict(1=>2) : [1=>2]
