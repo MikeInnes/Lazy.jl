@@ -17,7 +17,7 @@ lastcalls(ex::Array, f, dummy, start) =
     [ex[1:end-1]..., lastcalls(ex[end], f, dummy, start)]
 
 retcalls(ex, f, dummy, start) =
-  isexpr(ex, :return) ? Expr(:return, tailcall(ex.args[1], f, dummy, start)) :
+  isexpr(ex, :return) ? Expr(:return, lastcalls(ex.args[1], f, dummy, start)) :
   isexpr(ex) ? Expr(ex.head, map(ex->retcalls(ex, f, dummy, start), ex.args)...) :
   ex
 
