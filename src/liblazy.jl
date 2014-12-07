@@ -100,7 +100,7 @@ map(f::DataType, ls::List...) = mapply(f, ls...)
 
 lazymap(f::Union(Function, DataType), ls...) = map(f, map(seq, ls)...)
 
-reduce(f::Function, v, xs::List) =
+@rec reduce(f::Function, v, xs::List) =
   isempty(xs) ? v : reduce(f, f(v, first(xs)), rest(xs))
 
 reduce(f::Function, xs::List) =
