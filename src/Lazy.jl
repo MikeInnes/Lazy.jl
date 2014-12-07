@@ -90,7 +90,7 @@ include("collections.jl")
 
 export dorun, doall, foreach
 
-dorun(xs::List) = isempty(xs) ? nothing : dorun(rest(xs))
+@rec dorun(xs::List) = isempty(xs) ? nothing : dorun(rest(xs))
 doall(xs::List) = (dorun(xs); xs)
 
 foreach(f, ls::List...) = map(f, ls...) |> dorun
