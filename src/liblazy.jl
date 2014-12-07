@@ -10,12 +10,9 @@ seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
 
 seq(itr) = seq(itr, start(itr))
 seq(itr, state) =
-  @lazy if done(itr, state)
-    []
-  else
-    x, state = next(itr, state)
-    prepend(x, seq(itr, state))
-  end
+  @lazy done(itr, state) ? [] :
+    @with (x, state = next(itr, state)),
+      prepend(x, seq(itr, state))
 
 constantly(x) = @lazy x:constantly(x)
 constantly(n, x) = @>> constantly(x) take(n)
@@ -30,10 +27,10 @@ iterate(f, v) = @lazy v:iterate(f, f(v))
 range(x, y, step=1) =
   @lazy x <= y ? (x:range(x+step, y, step)) : []
 range(x=1) = # Optimisation for y=Inf
-  @lazy prepend(x, range(x+1))
+  @lazy x:range(x+1)
 
 concat(xs::List, ys::List) =
-  @lazy isempty(xs) ? ys : prepend(first(xs), concat(rest(xs), ys))
+  @lazy isempty(xs) ? ys : (first(xs):concat(rest(xs), ys))
 
 *(xs::List, ys::List) = concat(xs, ys)
 *(xs::BitArray, ys::List) = concat(seq(xs), ys)
@@ -53,12 +50,14 @@ export riffle, interpose, take, drop, take_last, drop_last, take_nth, takewhile,
 
 riffle(ls...) = riffle(map(seq, ls)...)
 riffle(ls::List...) =
-  @lazy any(isempty, ls) ? [] : seq(map(first, ls)) * riffle(map(rest, ls)...)
+  @lazy any(isempty, ls) ? [] :
+    seq(map(first, ls)) * riffle(map(rest, ls)...)
 
 interpose(xs, args...) = interpose(seq(xs), args...)
 interpose(xs::List, y, n = 1) =
   @lazy isempty(xs) ? [] :
-    take(n, xs) * (isempty(drop(n, xs)) ? [] : prepend(y, interpose(drop(n, xs), y, n)))
+       take(n, xs) * (isempty(drop(n, xs)) ? [] :
+                        prepend(y, interpose(drop(n, xs), y, n)))
 
 length(l::List) = isempty(l) ? 0 : 1 + length(rest(l))
 
@@ -113,13 +112,9 @@ reductions(f::Function, xs::List) =
   @lazy isempty(xs) ? [] : reductions(f, first(xs), rest(xs))
 
 filter(f::Function, xs::List) =
-  @lazy if isempty(xs)
-    []
-  elseif f(first(xs))
-    first(xs):filter(f, rest(xs))
-  else
-    filter(f, rest(xs))
-  end
+  @lazy isempty(xs) ? [] :
+        f(first(xs)) ? (first(xs):filter(f, rest(xs))) :
+        filter(f, rest(xs))
 
 remove(f::Function, xs::List) = filter(x->!f(x), xs)
 
@@ -144,19 +139,15 @@ end
 
 partition(n, xs::List; step = n, pad = nothing) =
   @lazy isempty(xs) ? [] :
-    let l = take(n, xs), len = length(l)
-      if len < n
-        pad == nothing ? [] : list(l * take(n-len, pad))
-      else
-        l:partition(n, drop(step, xs); step = step, pad = pad)
-      end
-    end
+    @with (l = take(n, xs), len = length(l)),
+      len < n ?
+        (pad == nothing ? [] : list(l * take(n-len, pad))) :
+        (l:partition(n, drop(step, xs); step = step, pad = pad))
 
 partition_by(f, xs::List) =
   @lazy isempty(xs) ? [] :
-    let x = first(xs), v = f(x), run = takewhile(x->f(x)==v, rest(xs))
+    @with (x = first(xs), v = f(x), run = takewhile(x->f(x)==v, rest(xs))),
       prepend(x,run):partition_by(f, @lazy drop(length(run)+1, xs))
-    end
 
 splitat(n, xs::List) = (take(n, xs), drop(n, xs))
 
@@ -182,7 +173,7 @@ import Base: any, all
     (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
 
 any(f::Function, xs::List) = @>> xs map(f) any
-any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
+@rec any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
 
 all(f::Function, xs::List) = @>> xs map(f) all
-all(xs::List) = isempty(xs) ? true : first(xs) && all(rest(xs))
+@rec all(xs::List) = isempty(xs) ? true : first(xs) && all(rest(xs))
