@@ -1,7 +1,7 @@
 # Threading macros
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond,
-  isexpr, namify, unblock
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with,
+  isexpr, namify, unblock, isdef
 
 isexpr(x::Expr) = true
 isexpr(x) = false
@@ -12,6 +12,8 @@ namify(s::Symbol) = s
 namify(ex::Expr) = namify(ex.args[1])
 
 subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
+
+isdef(ex) = isexpr(ex, :function) || (isexpr(ex, :(=)) && isexpr(ex.args[1], :call))
 
 function unblock(ex)
   isexpr(ex, :block) || return ex
