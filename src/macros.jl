@@ -3,6 +3,8 @@
 export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond,
   isexpr, namify, unblock
 
+isexpr(x::Expr) = true
+isexpr(x) = false
 isexpr(x::Expr, ts...) = x.head in ts
 isexpr(x, ts...) = any(T->isa(T, Type) && isa(x, T), ts)
 
