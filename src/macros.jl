@@ -57,9 +57,8 @@ Where `_` is replaced by the value for testing in each case. The final
 expression, if there is one, is used as the default value; if there is
 no default and nothing matches an error will be thrown.
 """
-macro switch (test, exprs)
-  @assert isexpr(exprs, :block) "@switch requires a begin block"
-  exprs = subexprs(exprs)
+macro switch (args...)
+  test, exprs = splitswitch(args...)
   length(exprs) == 0 && return nothing
   length(exprs) == 1 && return esc(exprs[1])
 
@@ -73,6 +72,22 @@ macro switch (test, exprs)
   thread(val, yes, rest...) = thread(val, yes, thread(rest...))
 
   esc(thread(exprs...))
+end
+
+function splitswitch(test, exprs)
+  @assert isexpr(exprs, :block) "@switch requires a begin block"
+  test, subexprs(expr)
+end
+
+function splitswitch(ex)
+  test = ex.args[1]
+  exprs = c()
+  for ex in ex.args[2:end]
+    isexpr(ex, :->) ?
+      push!(exprs, map(unblock, ex.args)...) :
+      push!(exprs, ex)
+  end
+  test, exprs
 end
 
 """
