@@ -27,13 +27,13 @@ function frequencies(xs)
   return freqs
 end
 
-function Base.getindex{K, V}(d::Dict{K, V}, ks::Vector{K})
-  vs = similar(ks, V, 0)
-  for k in ks
-    push!(vs, d[k])
-  end
-  return vs
-end
+# function Base.getindex{K, V}(d::Dict{K, V}, ks::Vector{K})
+#   vs = similar(ks, V, 0)
+#   for k in ks
+#     push!(vs, d[k])
+#   end
+#   return vs
+# end
 
 for f in (:takewhile, :splitby)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
