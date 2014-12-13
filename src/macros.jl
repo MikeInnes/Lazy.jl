@@ -78,7 +78,7 @@ end
 
 function splitswitch(test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
-  test, subexprs(expr)
+  test, subexprs(exprs)
 end
 
 function splitswitch(ex)
