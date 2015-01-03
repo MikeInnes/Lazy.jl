@@ -5,6 +5,7 @@ module Lazy
 ############
 
 include("macros.jl")
+include("dynamic.jl")
 include("tail.jl")
 
 export @listable

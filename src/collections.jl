@@ -1,5 +1,7 @@
 # TODO: Implement liblazy functions over standard arrays / other collections
 
+export getset
+
 walk(inner, outer, xs::Array) = @>> xs map(inner) outer
 
 function Base.split{T}(xs::Vector{T}, x; keep = true)
@@ -38,3 +40,6 @@ end
 for f in (:takewhile, :splitby)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
 end
+
+getset(coll, key, default) =
+  coll[key] = get(coll, key, default)
