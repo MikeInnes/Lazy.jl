@@ -6,7 +6,7 @@
 Pkg.add("Lazy")
 ```
 
-Lazy.jl provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. It's also a repository for some neat macros, which you might be useful to you even if you don't want lazy lists (see below).
+Lazy.jl provides Julia with the cornerstones of functional programming - lazily-evaluated lists and a large library of functions for working with them. It's also a repository for some neat macros, which might be useful to you even if you don't want lazy lists (see below).
 
 Firstly, the canonical examples, in Julia:
 
