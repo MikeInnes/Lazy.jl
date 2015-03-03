@@ -10,6 +10,8 @@ lastcalls(ex, f, dummy, start) =
     :block -> Expr(:block, lastcalls(ex.args, f, dummy, start)...),
     :let   -> Expr(:let, lastcalls(ex.args[1], f, dummy, start), ex.args[2:end]...),
     :if    -> Expr(:if, ex.args[1], lastcalls(ex.args[2], f, dummy, start), lastcalls(ex.args[3], f, dummy, start)),
+    :&&    -> Expr(:&&, ex.args[1], lastcalls(ex.args[2], f, dummy, start)),
+    :||    -> Expr(:||, ex.args[1], lastcalls(ex.args[2], f, dummy, start)),
     ex
 
 lastcalls(ex::Array, f, dummy, start) =
