@@ -29,6 +29,10 @@ function frequencies(xs)
   return freqs
 end
 
+export init
+
+init(xs) = xs[1:end-1]
+
 # function Base.getindex{K, V}(d::Dict{K, V}, ks::Vector{K})
 #   vs = similar(ks, V, 0)
 #   for k in ks
@@ -40,6 +44,3 @@ end
 for f in (:takewhile, :splitby)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
 end
-
-getset(coll, key, default) =
-  coll[key] = get(coll, key, default)
