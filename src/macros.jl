@@ -1,6 +1,6 @@
 # Threading macros
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with,
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with, @errs,
   isexpr, namify, unblock, isdef
 
 isexpr(x::Expr) = true
@@ -269,4 +269,11 @@ macro d(xs...)
   else
     :(Dict{Any, Any}($(map(esc, xs)...)))
   end
+end
+
+macro errs (ex)
+  :(try $(esc(ex))
+    catch e
+      showerror(STDERR, e, catch_backtrace())
+    end)
 end
