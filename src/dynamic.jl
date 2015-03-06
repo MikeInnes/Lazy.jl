@@ -86,7 +86,7 @@ isroot(task::Task) =
   task.parent == task
 
 bindings(task::Task) =
-  getset(storage(task), :bindings, @d())
+  get!(storage(task), :bindings, @d())
 
 bind{T}(b::Binding{T}, v::T, t::Task) =
   bindings(t)[b] = v
