@@ -179,7 +179,7 @@ macro _ (args...)
 end
 
 macro or (exs...)
-  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
+  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : esc(x)
 
   thread(x, xs...) =
     :(let x = $(esc(x))
