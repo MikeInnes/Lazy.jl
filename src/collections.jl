@@ -20,7 +20,7 @@ end
 export frequencies
 
 function frequencies(xs)
-  freqs = Dict{eltype(xs),Int}[]
+  freqs = Dict{eltype(xs),Int}()
   for x in xs
     freqs[x] = get(freqs, x, 0) + 1
   end
