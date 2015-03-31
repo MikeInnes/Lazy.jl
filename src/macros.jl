@@ -263,8 +263,9 @@ end
 
 # Other syntax
 
-export c, @d
+export c, s, @d
 c(xs...) = Any[xs...]
+s(xs...) = Set{Any}(xs)
 
 macro d(xs...)
   if VERSION < v"0.4-"
