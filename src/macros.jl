@@ -234,16 +234,80 @@ end
 End-less let block, e.g.
 
     @with (x = 1, y = 2),
-      x+y
+      x+y # => 3
+
+Also allowed multi-assignments, e.g.
+
+    @with ((x, y) = 1, 2),
+      x+y # => 3
+    @with (x, y = divrem(10, 3)),
+      (x, y)  # => (3, 1)
 """
 macro with (ex)
-  bindings, body = ex.args[1].args, ex.args[2]
+  bindings, body = compose_bindings(ex.args[1]), ex.args[2]
   ex = :(let
            $body
          end)
   push!(ex.args, bindings...)
   return esc(ex)
 end
+
+function decompose_assignment{T<:Union(Symbol, Expr)}(vars::Vector, t::T)
+  result = Any[]
+  for (idx, lh) = enumerate(vars)
+    rh = Expr(:ref, t, idx)
+    if isa(lh, Symbol)
+      push!(result, Expr(:(=), lh, rh))
+    else
+      append!(result, decompose_assignment(lh.args, rh))
+    end
+  end
+  result
+end
+
+function compose_bindings(ex)
+  src = ex.head == :tuple ? ex.args : Any[ex]
+  if all(ex->(isa(ex, Expr) && ex.head == :(=) && isa(ex.args[1], Symbol)), src)
+    # Simple assignments (e.g. "x = 1, y = 2")
+    return src
+  end
+  # Decompose Complex assinment to Simples
+  bindings = Any[]
+  lhs = Any[]
+  rhs = Any[]
+  islh = true
+  for ex0 = src
+    if islh
+      if isa(ex0, Symbol) || ex0.head != :(=)
+        push!(lhs, ex0)
+      else
+        lh = ex0.args[1]
+        if isa(lh, Symbol)
+          push!(lhs, lh)
+        else
+          append!(lhs, lh.args)
+        end
+        islh = false
+        push!(rhs, ex0.args[2])
+      end
+    else  # if isrh
+      push!(rhs, ex0)
+    end
+  end
+  rh = length(rhs) == 1 ? rhs[1] : Expr(:tuple, rhs...)
+  push!(bindings, Expr(:(=), lhs[end], rh))
+  append!(bindings, decompose_assignment(lhs, lhs[end]))
+  return bindings
+end
+# @test compose_bindings(:(x = 1)) == Any[:(x = 1)]
+# @test compose_bindings(:(x = 1, y = 2)) == Any[:(x = 1), :(y = 2)]
+# @test compose_bindings(:(x, y = 1, 2)) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:(x, y = (1, 2))) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:((x, y) = 1, 2)) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:((x, y) = (1, 2))) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:(x, y = divrem(10, 3))) == Any[:(y = divrem(10, 3)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:((x, y) = divrem(10, 3))) == Any[:(y = divrem(10, 3)), :(x = y[1]), :(y = y[2])]
+# @test compose_bindings(:(x = y = 2)) == Any[:(x = y = 2)]
 
 """
 Compile-time conditional, e.g.
