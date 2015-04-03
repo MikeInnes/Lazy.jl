@@ -299,15 +299,6 @@ function compose_bindings(ex)
   append!(bindings, decompose_assignment(lhs, lhs[end]))
   return bindings
 end
-# @test compose_bindings(:(x = 1)) == Any[:(x = 1)]
-# @test compose_bindings(:(x = 1, y = 2)) == Any[:(x = 1), :(y = 2)]
-# @test compose_bindings(:(x, y = 1, 2)) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:(x, y = (1, 2))) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:((x, y) = 1, 2)) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:((x, y) = (1, 2))) == Any[:(y = (1, 2)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:(x, y = divrem(10, 3))) == Any[:(y = divrem(10, 3)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:((x, y) = divrem(10, 3))) == Any[:(y = divrem(10, 3)), :(x = y[1]), :(y = y[2])]
-# @test compose_bindings(:(x = y = 2)) == Any[:(x = y = 2)]
 
 """
 Compile-time conditional, e.g.
