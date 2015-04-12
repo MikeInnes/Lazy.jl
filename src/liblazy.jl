@@ -11,8 +11,8 @@ seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
 seq(itr) = seq(itr, start(itr))
 seq(itr, state) =
   @lazy done(itr, state) ? [] :
-    @with (x, state = next(itr, state)),
-      prepend(x, seq(itr, state))
+    @with (t = next(itr, state)),
+      prepend(t[1], seq(itr, t[2]))
 
 constantly(x) = @lazy x:constantly(x)
 constantly(n, x) = @>> constantly(x) take(n)
