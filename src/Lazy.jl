@@ -103,7 +103,7 @@ foreach(f, ls::List...) = map(f, ls...) |> dorun
 import Base: getindex, setindex!, start, next, done
 
 getindex(l::List, i::Int) = i <= 1 ? first(l) : rest(l)[i-1]
-getindex(l::List, r::Range1) = take(r.len, drop(r.start - 1, l))
+getindex(l::List, r::UnitRange) = take(r.len, drop(r.start - 1, l))
 
 setindex!(xs::LinkedList, v, i::Integer) = i <= 1 ? xs.first = v : (rest(xs)[i-1] = v)
 setindex!(xs::LazyList, v, i::Integer) = i <= 1 ? realise(xs)[1] = v : (rest(xs)[i-1] = v)
