@@ -1,30 +1,32 @@
+lastcalls(ex, f) =
+  @switch isexpr(ex, _),
+    :call  -> f(ex),
+    :block -> Expr(:block, lastcalls(ex.args, f)...),
+    :let   -> Expr(:let, lastcalls(ex.args[1], f), ex.args[2:end]...),
+    :if    -> Expr(:if, ex.args[1], lastcalls(ex.args[2], f), lastcalls(ex.args[3], f)),
+    :&&    -> Expr(:&&, ex.args[1], lastcalls(ex.args[2], f)),
+    :||    -> Expr(:||, ex.args[1], lastcalls(ex.args[2], f)),
+    ex
+
+lastcalls(ex::Array, f) =
+  isempty(ex) ? ex :
+    [ex[1:end-1]..., lastcalls(ex[end], f)]
+
+retcalls(ex, f) =
+  isexpr(ex, :return) ? Expr(:return, lastcalls(ex.args[1], f)) :
+  isexpr(ex) ? Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...) :
+  ex
+
+# Tail recursion
+
 export @rec
+
+"Generate an expression like `(a, b) = (c, d)`."
+tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
 
 tailcall(ex, f, dummy, start) =
   ex.args[1] ≠ f ? ex :
     :($(tupleassign(dummy, ex.args[2:end])); @goto $start)
-
-lastcalls(ex, f, dummy, start) =
-  @switch isexpr(ex, _),
-    :call  -> tailcall(ex, f, dummy, start),
-    :block -> Expr(:block, lastcalls(ex.args, f, dummy, start)...),
-    :let   -> Expr(:let, lastcalls(ex.args[1], f, dummy, start), ex.args[2:end]...),
-    :if    -> Expr(:if, ex.args[1], lastcalls(ex.args[2], f, dummy, start), lastcalls(ex.args[3], f, dummy, start)),
-    :&&    -> Expr(:&&, ex.args[1], lastcalls(ex.args[2], f, dummy, start)),
-    :||    -> Expr(:||, ex.args[1], lastcalls(ex.args[2], f, dummy, start)),
-    ex
-
-lastcalls(ex::Array, f, dummy, start) =
-  isempty(ex) ? ex :
-    [ex[1:end-1]..., lastcalls(ex[end], f, dummy, start)]
-
-retcalls(ex, f, dummy, start) =
-  isexpr(ex, :return) ? Expr(:return, lastcalls(ex.args[1], f, dummy, start)) :
-  isexpr(ex) ? Expr(ex.head, map(ex->retcalls(ex, f, dummy, start), ex.args)...) :
-  ex
-
-"Generate an expression like `(a, b) = (c, d)`."
-tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
 
 """
 Enables efficient recursive functions, e.g.
@@ -58,6 +60,7 @@ macro rec (def)
              $(tupleassign(args, dummy))
            end)
 
-  def.args[2] = @> body macroexpand lastcalls(f, dummy, start) retcalls(f, dummy, start)
+  op = ex -> tailcall(ex, f, dummy, start)
+  def.args[2] = @> body macroexpand lastcalls(op) retcalls(op)
   return esc(def)
 end
