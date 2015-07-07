@@ -38,6 +38,7 @@ Without `@rec` this function would overflow the stack for
 lists of 80,000 or more elements.
 
 Caveats:
+
   • No support for trampolining, i.e. only calls to the
     given function are optimised away.
   • Ignores multiple dispatch – it is assumed that the function's
