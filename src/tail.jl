@@ -74,8 +74,8 @@ end
 
 trampname(f) = symbol(string("#__", f, "_tramp__"))
 
-type Bounce{T}
-  f::T
+type Bounce
+  f::Function
 end
 
 function trampoline(f, args...)
@@ -90,9 +90,13 @@ function bounce (ex)
   isexpr(ex, :call) || return ex
   f, args = ex.args[1], ex.args[2:end]
   f_tramp = trampname(f)
-  :(isdefined($(Expr(:quote, f_tramp))) ?
-      Lazy.Bounce(() -> $(Expr(:call, f_tramp, args...))) :
-      $ex)
+  :(Lazy.Bounce(() -> $(Expr(:call, f_tramp, args...))))
+end
+
+function trampdef(f)
+  f_tramp = trampname(f)
+  isdefined(f_tramp) && return
+  :($f_tramp(args...) = $f(args...))
 end
 
 macro bounce (def)
@@ -103,8 +107,13 @@ macro bounce (def)
   f_tramp = trampname(f)
   args = def.args[1].args[2:end]
   def.args[1].args[1] = f_tramp
-  def.args[2] = tailcalls(def.args[2], bounce)
+
+  calls = Symbol[]
+  def.args[2] = tailcalls(def.args[2],
+                          ex -> (isexpr(ex, :call) && push!(calls, ex.args[1]);
+                                 bounce(ex)))
   quote
+    $([trampdef(call) for call in calls]...)
     $def
     $f($(args...)) = Lazy.trampoline($f_tramp, $(args...))
   end |> esc
