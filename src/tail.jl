@@ -17,6 +17,8 @@ retcalls(ex, f) =
   isexpr(ex) ? Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...) :
   ex
 
+tailcalls(ex, f) = @> ex lastcalls(f) retcalls(f)
+
 # Tail recursion
 
 export @rec
@@ -24,7 +26,7 @@ export @rec
 "Generate an expression like `(a, b) = (c, d)`."
 tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
 
-tailcall(ex, f, dummy, start) =
+tco(ex, f, dummy, start) =
   ex.args[1] ≠ f ? ex :
     :($(tupleassign(dummy, ex.args[2:end])); @goto $start)
 
@@ -47,8 +49,9 @@ Caveats:
   • Don't use this with varargs functions.
 """
 macro rec (def)
+  def = macroexpand(def)
   @assert isdef(def)
-  f = def.args[1].args[1]
+  f = namify(def)
   args = @>> def.args[1].args[2:end]
   dummy = @>> args map(namify) map(string) map(gensym)
   body = def.args[2]
@@ -61,7 +64,6 @@ macro rec (def)
              $(tupleassign(args, dummy))
            end)
 
-  op = ex -> tailcall(ex, f, dummy, start)
-  def.args[2] = @> body macroexpand lastcalls(op) retcalls(op)
+  def.args[2] = tailcalls(body, ex -> tco(ex, f, dummy, start))
   return esc(def)
 end
