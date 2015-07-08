@@ -1,3 +1,5 @@
+# Tail call operations
+
 lastcalls(ex, f) =
   @switch isexpr(ex, _),
     :call  -> f(ex),
@@ -21,7 +23,7 @@ tailcalls(ex, f) = @> ex lastcalls(f) retcalls(f)
 
 # Tail recursion
 
-export @rec
+export @rec, @bounce
 
 "Generate an expression like `(a, b) = (c, d)`."
 tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
@@ -66,4 +68,44 @@ macro rec (def)
 
   def.args[2] = tailcalls(body, ex -> tco(ex, f, dummy, start))
   return esc(def)
+end
+
+# Trampolining
+
+trampname(f) = symbol(string("#__", f, "_tramp__"))
+
+type Bounce{T}
+  f::T
+end
+
+function trampoline(f, args...)
+  val = f(args...)
+  while isa(val, Bounce)
+    val = val.f()
+  end
+  return val
+end
+
+function bounce (ex)
+  isexpr(ex, :call) || return ex
+  f, args = ex.args[1], ex.args[2:end]
+  f_tramp = trampname(f)
+  :(isdefined($(Expr(:quote, f_tramp))) ?
+      Lazy.Bounce(() -> $(Expr(:call, f_tramp, args...))) :
+      $ex)
+end
+
+macro bounce (def)
+  def = macroexpand(def)
+  @assert isdef(def)
+  @assert isexpr(def.args[1].args[1], Symbol) # TODO: handle f{T}() = ...
+  f = namify(def)
+  f_tramp = trampname(f)
+  args = def.args[1].args[2:end]
+  def.args[1].args[1] = f_tramp
+  def.args[2] = tailcalls(def.args[2], bounce)
+  quote
+    $def
+    $f($(args...)) = Lazy.trampoline($f_tramp, $(args...))
+  end |> esc
 end
