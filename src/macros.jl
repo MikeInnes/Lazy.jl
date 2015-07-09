@@ -237,7 +237,8 @@ End-less let block, e.g.
       x+y
 """
 macro with (ex)
-  bindings, body = ex.args[1].args, ex.args[2]
+  get_bindings(ex) = isexpr(ex, :tuple) ? ex.args : Any[ex]
+  bindings, body = get_bindings(ex.args[1]), ex.args[2]
   ex = :(let
            $body
          end)
