@@ -70,7 +70,7 @@ function dynamic_let(ex)
   end
 end
 
-macro dynamic (def)
+macro dynamic(def)
   isexpr(def, :(=)) ? dynamic_eq(def) :
   isexpr(def, :let) ? dynamic_let(def) :
   error("Unsupported @dynamic expression")

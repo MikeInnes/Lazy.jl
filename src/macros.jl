@@ -11,7 +11,7 @@ More convenient macro expansion, e.g.
 
     @expand @time foo()
 """
-macro expand (ex)
+macro expand(ex)
   :(macroexpand($(Expr(:quote, ex))))
 end
 
@@ -43,7 +43,7 @@ Where `_` is replaced by the value for testing in each case. The final
 expression, if there is one, is used as the default value; if there is
 no default and nothing matches an error will be thrown.
 """
-macro switch (args...)
+macro switch(args...)
   test, exprs = splitswitch(args...)
   length(exprs) == 0 && return nothing
   length(exprs) == 1 && return esc(exprs[1])
@@ -92,7 +92,7 @@ preceding a function will be treated as its first argument
 
 See also `@>>`, `@as`.
 """
-macro > (exs...)
+macro >(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
@@ -113,7 +113,7 @@ Same as `@>`, but threads the last argument.
 
   @>> x g f(y, z) == f(y, z, g(x))
 """
-macro >> (exs...)
+macro >>(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
@@ -140,7 +140,7 @@ end == 6
 
 `@_` is a version of `@as` which defaults to `_` as the argument name.
 """
-macro as (as, exs...)
+macro as(as, exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
@@ -158,11 +158,11 @@ end
 """
 Same as `@as` but uses `_` as the argmument name.
 """
-macro _ (args...)
+macro _(args...)
   :(@as $(esc(:_)) $(map(esc, args)...))
 end
 
-macro or (exs...)
+macro or(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : esc(x)
 
   thread(x, xs...) =
@@ -174,7 +174,7 @@ macro or (exs...)
 end
 
 "Repeat `body` `n` times."
-macro dotimes (n, body)
+macro dotimes(n, body)
   quote
     for i = 1:$(esc(n))
       $(esc(body))
@@ -186,7 +186,7 @@ end
 A do-while loop – executes the while loop once regardless of the
 condition, then tests the condition before subsequen iterations.
 """
-macro oncethen (expr::Expr)
+macro oncethen(expr::Expr)
   @assert expr.head == :while
   esc(quote
     $(expr.args[2]) # body of loop
@@ -203,7 +203,7 @@ Stop Julia from complaining about redifined consts/types –
     or
     @defonce const pi = 3.14
 """
-macro defonce (typedef::Expr)
+macro defonce(typedef::Expr)
   name = namify(typedef.head == :type ? typedef.args[2] : typedef)
 
   :(if !isdefined($(Expr(:quote, name)))
@@ -217,7 +217,7 @@ End-less let block, e.g.
     @with (x = 1, y = 2),
       x+y
 """
-macro with (ex)
+macro with(ex)
   bindings, body = ex.args[1].args, ex.args[2]
   ex = :(let
            $body
@@ -233,7 +233,7 @@ Compile-time conditional, e.g.
 
 Also supports if-else chains via ternary or block syntax.
 """
-macro cond (ex)
+macro cond(ex)
   ex = unblock(ex)
   isexpr(ex, :if) || return ex
 
@@ -256,7 +256,7 @@ macro d(xs...)
   end
 end
 
-macro errs (ex)
+macro errs(ex)
   :(try $(esc(ex))
     catch e
       showerror(STDERR, e, catch_backtrace())

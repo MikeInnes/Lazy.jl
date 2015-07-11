@@ -57,7 +57,7 @@ Caveats:
   • Don't rebind the function's name in a let (see above).
   • Don't use this with varargs functions.
 """
-macro rec (def)
+macro rec(def)
   def = macroexpand(def)
   @assert isdef(def)
   f = namify(def)
@@ -93,7 +93,7 @@ function trampoline(f, args...)
   return val
 end
 
-function bounce (ex)
+function bounce(ex)
   isexpr(ex, :call) || return ex
   f, args = ex.args[1], ex.args[2:end]
   f_tramp = trampname(f)
@@ -106,7 +106,7 @@ function trampdef(f)
   :($f_tramp(args...) = $f(args...))
 end
 
-macro bounce (def)
+macro bounce(def)
   def = macroexpand(def)
   @assert isdef(def)
   @assert isexpr(def.args[1].args[1], Symbol) # TODO: handle f{T}() = ...
