@@ -4,10 +4,10 @@ using ExpressionMatch
 
 function lastcalls(ex, f)
   @match ex begin
-    f_(__) -> f(ex)
+    g_(__)         -> f(ex)
     begin __ end   -> :(begin $(lastcalls(ex.args, f)...) end)
     let __ end     -> :(let $(lastcalls(ex.args, f)...) end)
-    (c_ ? y_ : n_) -> :(c_ ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
+    (c_ ? y_ : n_) -> :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
     (a_ && b_)     -> :($a && $(lastcalls(b, f)))
     (a_ || b_)     -> :($a || $(lastcalls(b, f)))
     _              -> ex
