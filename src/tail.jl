@@ -1,23 +1,30 @@
+using ExpressionMatch
+
 # Tail call operations
 
-lastcalls(ex, f) =
-  @switch isexpr(ex, _),
-    :call  -> f(ex),
-    :block -> Expr(:block, lastcalls(ex.args, f)...),
-    :let   -> Expr(:let, lastcalls(ex.args[1], f), ex.args[2:end]...),
-    :if    -> Expr(:if, ex.args[1], lastcalls(ex.args[2], f), lastcalls(ex.args[3], f)),
-    :&&    -> Expr(:&&, ex.args[1], lastcalls(ex.args[2], f)),
-    :||    -> Expr(:||, ex.args[1], lastcalls(ex.args[2], f)),
-    ex
+function lastcalls(ex, f)
+  @match ex begin
+    f_(__) -> f(ex)
+    begin __ end   -> :(begin $(lastcalls(ex.args, f)...) end)
+    let __ end     -> :(let $(lastcalls(ex.args, f)...) end)
+    (c_ ? y_ : n_) -> :(c_ ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
+    (a_ && b_)     -> :($a && $(lastcalls(b, f)))
+    (a_ || b_)     -> :($a || $(lastcalls(b, f)))
+    _              -> ex
+  end
+end
 
 lastcalls(ex::Array, f) =
   isempty(ex) ? ex :
     [ex[1:end-1]..., lastcalls(ex[end], f)]
 
-retcalls(ex, f) =
-  isexpr(ex, :return) ? Expr(:return, lastcalls(ex.args[1], f)) :
-  isexpr(ex) ? Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...) :
-  ex
+function retcalls(ex, f)
+  @match ex begin
+    (return x_) -> :(return $(lastcalls(x, f)))
+    _Expr       -> Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...)
+    _           -> ex
+  end
+end
 
 tailcalls(ex, f) = @> ex lastcalls(f) retcalls(f)
 
