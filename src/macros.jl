@@ -1,29 +1,10 @@
+using ExpressionMatch
+
 # Threading macros
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with, @errs,
-  isexpr, namify, unblock, isdef
+import Base: replace
 
-isexpr(x::Expr) = true
-isexpr(x) = false
-isexpr(x::Expr, ts...) = x.head in ts
-isexpr(x, ts...) = any(T->isa(T, Type) && isa(x, T), ts)
-
-namify(s::Symbol) = s
-namify(ex::Expr) = namify(ex.args[1])
-
-subexprs(ex) = filter(x -> !isexpr(x, :line), ex.args)
-
-isdef(ex) = isexpr(ex, :function) || (isexpr(ex, :(=)) && isexpr(ex.args[1], :call))
-
-function unblock(ex)
-  isexpr(ex, :block) || return ex
-  exs = filter(ex->!isexpr(ex, :line), ex.args)
-  length(exs) == 1 || return ex
-  return exs[1]
-end
-
-Base.macroexpand(m::Module, ex) =
-  eval(m, :(macroexpand($(Expr(:quote, ex)))))
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with, @errs
 
 """
 More convenient macro expansion, e.g.
@@ -81,7 +62,7 @@ end
 
 function splitswitch(test, exprs)
   @assert isexpr(exprs, :block) "@switch requires a begin block"
-  test, subexprs(exprs)
+  test, rmlines(exprs).args
 end
 
 function splitswitch(ex)
@@ -112,12 +93,12 @@ preceding a function will be treated as its first argument
 See also `@>>`, `@as`.
 """
 macro > (exs...)
-  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
     isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
-    isexpr(ex, :block)            ? thread(x, subexprs(ex)...) :
+    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>")
 
   thread(x, exs...) = reduce(thread, x, exs)
@@ -133,12 +114,12 @@ Same as `@>`, but threads the last argument.
   @>> x g f(y, z) == f(y, z, g(x))
 """
 macro >> (exs...)
-  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
     isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args..., x) :
-    isexpr(ex, :block)            ? thread(x, subexprs(ex)...) :
+    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>>")
 
   thread(x, exs...) = reduce(thread, x, exs)
@@ -160,11 +141,11 @@ end == 6
 `@_` is a version of `@as` which defaults to `_` as the argument name.
 """
 macro as (as, exs...)
-  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : x
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
     isexpr(ex, Symbol, :->) ? Expr(:call, ex, x) :
-    isexpr(ex, :block)      ? thread(x, subexprs(ex)...) :
+    isexpr(ex, :block)      ? thread(x, rmlines(ex).args...) :
     :(let $as = $x
         $ex
       end)
@@ -182,7 +163,7 @@ macro _ (args...)
 end
 
 macro or (exs...)
-  thread(x) = isexpr(x, :block) ? thread(subexprs(x)...) : esc(x)
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : esc(x)
 
   thread(x, xs...) =
     :(let x = $(esc(x))
