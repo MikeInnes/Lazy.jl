@@ -94,10 +94,9 @@ function trampoline(f, args...)
 end
 
 function bounce(ex)
-  isexpr(ex, :call) || return ex
-  f, args = ex.args[1], ex.args[2:end]
+  @capture(ex, f_(args__)) || return ex
   f_tramp = trampname(f)
-  :(Lazy.Bounce(() -> $(Expr(:call, f_tramp, args...))))
+  :(Lazy.Bounce(() -> $f_tramp($(args...))))
 end
 
 function trampdef(f)
