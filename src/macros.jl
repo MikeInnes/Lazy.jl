@@ -194,8 +194,8 @@ Stop Julia from complaining about redifined consts/types –
     or
     @defonce const pi = 3.14
 """
-macro defonce(typedef::Expr)
-  name = namify(typedef.head == :type ? typedef.args[2] : typedef)
+macro defonce(def)
+  name = namify(isexpr(typedef, :type) ? typedef.args[2] : typedef)
 
   :(if !isdefined($(Expr(:quote, name)))
       $(esc(typedef))
@@ -209,7 +209,7 @@ End-less let block, e.g.
       x+y
 """
 macro with(ex)
-  bindings, body = ex.args[1].args, ex.args[2]
+  @capture(ex, ((bindings__,), body_)) || error("Invalid expression @with $ex")
   ex = :(let
            $body
          end)
@@ -225,12 +225,10 @@ Compile-time conditional, e.g.
 Also supports if-else chains via ternary or block syntax.
 """
 macro cond(ex)
-  ex = unblock(ex)
-  isexpr(ex, :if) || return ex
-
-  eval(current_module(), ex.args[1]) ?
-    esc(ex.args[2]) :
-    :(@cond $(esc(ex.args[3])))
+  @match ex begin
+    (c_ ? y_ : n_) => eval(current_module(), c) ? esc(y) : :(@cond $(esc(n)))
+    _ => ex
+  end
 end
 
 # Other syntax
@@ -240,7 +238,7 @@ c(xs...) = Any[xs...]
 s(xs...) = Set{Any}(xs)
 
 macro d(xs...)
-  if VERSION < v"0.4-"
+  @cond if VERSION < v"0.4-"
     Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
   else
     :(Dict{Any, Any}($(map(esc, xs)...)))
