@@ -195,10 +195,10 @@ Stop Julia from complaining about redifined consts/types –
     @defonce const pi = 3.14
 """
 macro defonce(def)
-  name = namify(isexpr(typedef, :type) ? typedef.args[2] : typedef)
+  name = namify(isexpr(def, :type) ? def.args[2] : def)
 
   :(if !isdefined($(Expr(:quote, name)))
-      $(esc(typedef))
+      $(esc(def))
     end)
 end
 
@@ -227,7 +227,7 @@ Also supports if-else chains via ternary or block syntax.
 macro cond(ex)
   @match ex begin
     (c_ ? y_ : n_) => eval(current_module(), c) ? esc(y) : :(@cond $(esc(n)))
-    _ => ex
+    _ => esc(ex)
   end
 end
 
