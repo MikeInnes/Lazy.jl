@@ -56,6 +56,8 @@ Caveats:
     name always refers to the given definition.
   • Don't rebind the function's name in a let (see above).
   • Don't use this with varargs functions.
+
+Use the more flexible, but slower, `@bounce` to avoid these issues.
 """
 macro rec(def)
   def = macroexpand(def)
@@ -105,6 +107,17 @@ function trampdef(f)
   :($f_tramp(args...) = $f(args...))
 end
 
+"""
+Tail recursion that doesn't blow the stack.
+
+    @bounce even(n) = n == 0 ? true : odd(n-1)
+    @bounce odd(n) = n == 0 ? false : even(n-1)
+
+    even(1_000_000) # Blows up without `@bounce`.
+    #> true
+
+For simple cases you probably want the much faster `@rec`.
+"""
 macro bounce(def)
   def = macroexpand(def)
   @assert isdef(def)
