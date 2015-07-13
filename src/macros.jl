@@ -4,16 +4,7 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @expand, @cond, @with, @errs
-
-"""
-More convenient macro expansion, e.g.
-
-    @expand @time foo()
-"""
-macro expand(ex)
-  :(macroexpand($(Expr(:quote, ex))))
-end
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs
 
 """
 A switch statement of sorts:

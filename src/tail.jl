@@ -4,13 +4,13 @@ using MacroTools
 
 function lastcalls(ex, f)
   @match ex begin
-    g_(__)         -> f(ex)
-    begin __ end   -> :(begin $(lastcalls(ex.args, f)...) end)
-    let __ end     -> :(let $(lastcalls(ex.args, f)...) end)
-    (c_ ? y_ : n_) -> :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
-    (a_ && b_)     -> :($a && $(lastcalls(b, f)))
-    (a_ || b_)     -> :($a || $(lastcalls(b, f)))
-    _              -> ex
+    g_(__)         => f(ex)
+    begin __ end   => :(begin $(lastcalls(ex.args, f)...) end)
+    let __ end     => :(let $(lastcalls(ex.args, f)...) end)
+    (c_ ? y_ : n_) => :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
+    a_ && b_       => :($a && $(lastcalls(b, f)))
+    a_ || b_       => :($a || $(lastcalls(b, f)))
+    _              => ex
   end
 end
 
@@ -20,9 +20,9 @@ lastcalls(ex::Array, f) =
 
 function retcalls(ex, f)
   @match ex begin
-    (return x_) -> :(return $(lastcalls(x, f)))
-    _Expr       -> Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...)
-    _           -> ex
+    (return x_) => :(return $(lastcalls(x, f)))
+    _Expr       => Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...)
+    _           => ex
   end
 end
 
