@@ -60,20 +60,19 @@ Caveats:
 Use the more flexible, but slower, `@bounce` to avoid these issues.
 """
 macro rec(def)
-  def = macroexpand(def)
-  @assert isdef(def)
-  f = namify(def)
-  args = @>> def.args[1].args[2:end]
+  def = shortdef(macroexpand(def))
+  @capture(def, f_(args__) = body_) || error("@rec: $def is not a function definition.")
+  f = namify(f)
   dummy = @>> args map(namify) map(string) map(gensym)
-  body = def.args[2]
 
   # Set up of variables
   @gensym start
-  unshift!(body.args, quote
-             $(tupleassign(dummy, args))
-             @label $start
-             $(tupleassign(args, dummy))
-           end)
+  body = quote
+           $(tupleassign(dummy, args))
+           @label $start
+           $(tupleassign(args, dummy))
+           $body
+         end
 
   def.args[2] = tailcalls(body, ex -> tco(ex, f, dummy, start))
   return esc(def)
