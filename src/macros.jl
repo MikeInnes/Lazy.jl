@@ -22,9 +22,6 @@ function unblock(ex)
   return exs[1]
 end
 
-Base.macroexpand(m::Module, ex) =
-  eval(m, :(macroexpand($(Expr(:quote, ex)))))
-
 """
 More convenient macro expansion, e.g.
 
