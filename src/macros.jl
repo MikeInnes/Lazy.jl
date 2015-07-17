@@ -145,7 +145,7 @@ macro as_first(as_token, code...)
 
   # default to the first expression if there is no remaining code
 
-  thread(only, code...) = reduce((only, code) -> thread(only, code), only, code)
+  thread(only, code...) = reduce(thread, only, code)
 
   esc(thread(code...))
 end
@@ -213,7 +213,7 @@ macro as_last(as_token, code...)
 
   # default to the first expression if there is no remaining code
 
-  thread(only, code...) = reduce((only, code) -> thread(only, code), only, code)
+  thread(only, code...) = reduce(thread, only, code)
 
   esc(thread(code...))
 end
