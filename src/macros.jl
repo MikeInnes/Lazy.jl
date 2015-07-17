@@ -67,90 +67,177 @@ function splitswitch(ex)
   test, exprs
 end
 
+
 """
-The threading macro is like a more flexible version of the `|>` operator.
+@as_first always conducts substitution at all locations of its first argument, the as-token (_ in these examples).
 
-    @> x f = f(x)
-    @> x g f == f(g(x))
-    @> x a b c d e == e(d(c(b(a(x)))))
+@as_first _ 1 +(_) will translate to +(1, 1)
 
-Unlike |>, functions can have arguments - the value
-preceding a function will be treated as its first argument
+Insertion is a default behavior.
 
-    @> x g(y, z) f == f(g(x, y, z))
+@as_first _ 1 +(1) will translate to +(1, 1). 1 was piped in as the first argument
 
-    @> x g f(y, z) == f(g(x), y, z)
+Insertion can be overriden in two ways:
 
-See also `@>>`, `@as`.
+1) Wrapping in curly brackets
+
+@as_first _ 1 { +(1, 1 + _) } will translate to +(1, 1 + 1) (only substitution occured)
+
+2) Including a bare as-token as an argument
+
+@as_first _ 1 +(_) will translate to +(1, 1) (identical to the first example)
+
+@as_first will work iteratively
+
+@as_first _ 1 +(1) +(1) is +(+(1, 1), 1)
 """
-macro >(exs...)
-  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
+macro as_first(as_token, code...)
+  thread(single_expression) =
+    # split up a quoted expression into its lines
+    if isexpr(single_expression, :block)
+      thread(rmlines(single_expression).args...)
+      # or else no chaining necessary
+    else
+      single_expression
+    end
 
-  thread(x, ex) =
-    isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
-    isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
-    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
-                                    error("Unsupported expression $ex in @>")
+  thread(chain, next) =
 
-  thread(x, exs...) = reduce(thread, x, exs)
+    # if the next expression is a lambda, call the function on the chain
+    if  isexpr(next, Symbol, :->)
+      Expr(:call, next, chain)
 
-  esc(thread(exs...))
+      # split up quote blocks
+    elseif isexpr(next, :block)
+      thread(chain, rmlines(next).args...)
+
+      # if the expression is wrapped in curly brackets, use inside and substitute token
+    elseif isexpr(next, :cell1d)
+      next = next.args[1]
+      :(
+        let $as_token = $chain
+          $next
+        end
+      )
+
+      # if the token is an argument by itself, substitute token
+    elseif as_token in next.args
+       :(
+        let $as_token = $chain
+          $next
+        end
+      )
+
+      # if the next expression is a function or a macro
+    elseif isexpr(next, :call, :macrocall)
+      # insert chain as first argument
+      next =
+        Expr(next.head,
+           next.args[1],
+           chain,
+           next.args[2:end]...)
+
+      # substitute token
+      :(
+          let $as_token = $chain
+            $next
+          end
+        )
+    else
+      error("Unsupported expression $next")
+    end
+
+  # default to the first expression if there is no remaining code
+
+  thread(only, code...) = reduce((only, code) -> thread(only, code), only, code)
+
+  esc(thread(code...))
 end
 
 """
-Same as `@>`, but threads the last argument.
+Same as @as_first, except the chain is inserted as the last argument
 
-  @>> x g(y, z) f == f(g(y, z, x))
-
-  @>> x g f(y, z) == f(y, z, g(x))
+@as_first _ 1 -(0) is -(0, 1)
 """
-macro >>(exs...)
-  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
+macro as_last(as_token, code...)
+  thread(single_expression) =
+    # split up a quoted expression into its lines
+    if isexpr(single_expression, :block)
+      thread(rmlines(single_expression).args...)
+      # or else no chaining necessary
+    else
+      single_expression
+    end
 
-  thread(x, ex) =
-    isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
-    isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args..., x) :
-    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
-                                    error("Unsupported expression $ex in @>>")
+  thread(chain, next) =
 
-  thread(x, exs...) = reduce(thread, x, exs)
+    # if the next expression is a lambda, call the function on the chain
+    if  isexpr(next, Symbol, :->)
+      Expr(:call, next, chain)
 
-  esc(thread(exs...))
+      # split up quote blocks
+    elseif isexpr(next, :block)
+      thread(chain, rmlines(next).args...)
+
+      # if the expression is wrapped in curly brackets, use inside and substitute token
+    elseif isexpr(next, :cell1d)
+      next = next.args[1]
+      :(
+        let $as_token = $chain
+          $next
+        end
+      )
+
+      # if the token is an argument by itself, substitute token
+    elseif as_token in next.args
+       :(
+        let $as_token = $chain
+          $next
+        end
+      )
+
+      # if the next expression is a function or a macro
+    elseif isexpr(next, :call, :macrocall)
+
+      # insert chain as last argument
+      next =
+        Expr(next.head,
+             next.args...,
+             chain)
+
+      # substitute token
+      :(
+          let $as_token = $chain
+            $next
+          end
+        )
+    else
+      error("Unsupported expression $next")
+    end
+
+  # default to the first expression if there is no remaining code
+
+  thread(only, code...) = reduce((only, code) -> thread(only, code), only, code)
+
+  esc(thread(code...))
 end
 
 """
-# @as lets you name the threaded argmument
-@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+Same as @as_first, but the as-token is _ automatically.
 
-# All threading macros work over begin blocks
-
-@as x 2 begin
- x^2
- x+2
-end == 6
-
-`@_` is a version of `@as` which defaults to `_` as the argument name.
+@> 1 +(1, _) = +(1, 1)
 """
-macro as(as, exs...)
-  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
-
-  thread(x, ex) =
-    isexpr(ex, Symbol, :->) ? Expr(:call, ex, x) :
-    isexpr(ex, :block)      ? thread(x, rmlines(ex).args...) :
-    :(let $as = $x
-        $ex
-      end)
-
-  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), x, exs)
-
-  esc(thread(exs...))
+macro >(args...)
+  :(@as_first $(esc(:_)) $(map(esc, args)...))
 end
 
 """
-Same as `@as` but uses `_` as the argmument name.
+Same as @as_last, but the as-token is _ automatically.
+
+@>> 1 -(0, _) = +(1, 1)
 """
-macro _(args...)
-  :(@as $(esc(:_)) $(map(esc, args)...))
+macro >>(args...)
+  :(@as_last $(esc(:_)) $(map(esc, args)...))
 end
 
 macro or(exs...)
