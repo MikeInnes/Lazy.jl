@@ -71,7 +71,7 @@ end
 """
 @as_first always conducts substitution at all locations of its first argument, the as-token (_ in these examples).
 
-@as_first _ 1 +(_) will translate to +(1, 1)
+@as_first _ 1 +(1, _) will translate to +(1, 1)
 
 Insertion is a default behavior.
 
@@ -85,11 +85,7 @@ Insertion can be overriden in two ways:
 
 2) Including a bare as-token as an argument
 
-@as_first _ 1 +(_) will translate to +(1, 1) (identical to the first example)
-
-@as_first will work iteratively
-
-@as_first _ 1 +(1) +(1) is +(+(1, 1), 1)
+@as_first _ 1 +(1, _) will translate to +(1, 1) (identical to the first example)
 """
 macro as_first(as_token, code...)
   thread(single_expression) =
