@@ -55,4 +55,8 @@ facts("Threading macros") do
     @fact temp => 6
 end
 
+facts("Function call building") do
+  @fact (@> Args() add(1) add(1) call(+) ) => 2
+end
+
 FactCheck.exitstatus()
