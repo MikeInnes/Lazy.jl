@@ -249,5 +249,6 @@ macro errs(ex)
   :(try $(esc(ex))
     catch e
       showerror(STDERR, e, catch_backtrace())
+      println(STDERR)
     end)
 end
