@@ -226,7 +226,7 @@ Also supports if-else chains via ternary or block syntax.
 """
 macro cond(ex)
   @match ex begin
-    (c_ ? y_ : n_) => eval(current_module(), c) ? esc(y) : :(@cond $(esc(n)))
+    (c_ ? y_ : n_) => (eval(current_module(), c) ? esc(y) : :(@cond $(esc(n))))
     _ => esc(ex)
   end
 end

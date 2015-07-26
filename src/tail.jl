@@ -8,8 +8,8 @@ function lastcalls(ex, f)
     begin __ end   => :(begin $(lastcalls(ex.args, f)...) end)
     let __ end     => :(let $(lastcalls(ex.args, f)...) end)
     (c_ ? y_ : n_) => :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
-    a_ && b_       => :($a && $(lastcalls(b, f)))
-    a_ || b_       => :($a || $(lastcalls(b, f)))
+    (a_ && b_)     => :($a && $(lastcalls(b, f)))
+    (a_ || b_)     => :($a || $(lastcalls(b, f)))
     _              => ex
   end
 end
