@@ -1,4 +1,5 @@
 using Lazy
+import Lazy: rest, cycle, range, drop, take
 using FactCheck
 
 facts("Lists") do
