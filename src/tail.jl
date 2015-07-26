@@ -3,9 +3,9 @@ using MacroTools
 # Tail call operations
 
 function lastcalls(ex, f)
+  isexpr(ex, :block) && return :(begin $(lastcalls(ex.args, f)...) end)
   @match ex begin
     g_(__)         => f(ex)
-    begin __ end   => :(begin $(lastcalls(ex.args, f)...) end)
     let __ end     => :(let $(lastcalls(ex.args, f)...) end)
     (c_ ? y_ : n_) => :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
     a_ && b_       => :($a && $(lastcalls(b, f)))
