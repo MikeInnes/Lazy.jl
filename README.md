@@ -21,7 +21,7 @@ take(20, fibs)
 # isprime defined in terms of the prime numbers:
 isprime(n) =
   @>> primes begin
-    take_while(x -> x<=sqrt(n))
+    takewhile(x -> x<=sqrt(n))
     map(x -> n % x == 0)
     any; !
   end
