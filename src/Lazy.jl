@@ -10,6 +10,8 @@ include("tail.jl")
 
 export @listable
 
+import Base: *, ==, +, -
+
 macro listable(f)
   if typeof(f) == Expr && f.head == :tuple
     return Expr(:block, [:(@listable $f) for f in f.args]...)
