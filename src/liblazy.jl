@@ -90,14 +90,14 @@ takewhile(pred::Function, l::List) =
 drop_while(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? l : drop_while(pred, rest(l))
 
-mapply(f::Union(Function, DataType), ls...) =
+mapply(f::@compat(Union{Function, DataType}), ls...) =
   @lazy any(isempty, ls) ? [] : prepend(f(map(first, ls)...), mapply(f, map(rest, ls)...))
 
 # Resolves amibguity error
 map(f::Function, ls::List...) = mapply(f, ls...)
 map(f::DataType, ls::List...) = mapply(f, ls...)
 
-lazymap(f::Union(Function, DataType), ls...) = map(f, map(seq, ls)...)
+lazymap(f::@compat(Union{Function, DataType}), ls...) = map(f, map(seq, ls)...)
 
 @rec reduce(f::Function, v, xs::List) =
   isempty(xs) ? v : reduce(f, f(v, first(xs)), rest(xs))
