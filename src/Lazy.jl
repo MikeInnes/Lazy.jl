@@ -142,7 +142,7 @@ const fibs = @lazy 0:big(1):(fibs + drop(1, fibs))
 
 isprime(n) =
   @>> primes begin
-    take_while(x -> x<=sqrt(n))
+    takewhile(x -> x<=sqrt(n))
     map(x -> n % x == 0)
     any; !
   end

@@ -171,11 +171,11 @@ riffle
 interpose
 take
 drop
-take_last
-drop_last
-take_nth
-take_while
-drop_while
+takelast
+droplast
+takenth
+takewhile
+dropwhile
 # These work as for arrays, but are
 # lazy where appropriate.
 map, reduce, filter, reverse
@@ -185,11 +185,11 @@ remove
 dorun
 foreach
 distinct
-group_by
+groupby
 partition
-partition_by
-split_at
-split_by
+partitionby
+splitat
+splitby
 
 # @lazy is the secret sauce that makes infinite definitions
 # work; usually you can just wrap your list definition in it:
