@@ -43,9 +43,9 @@ concat(xs::List, ys::List) =
 
 import Base: length, map, reduce, filter, reverse
 
-export riffle, interpose, take, drop, take_last, drop_last, take_nth, takewhile, drop_while,
+export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
        lazymap, reductions, remove, dorun, foreach, distinct,
-       group_by, partition, partition_by, splitat, splitby,
+       groupby, partition, partitionby, splitat, splitby,
        walk, prewalk, postwalk, flatten
 
 riffle(ls...) = riffle(map(seq, ls)...)
@@ -69,26 +69,26 @@ take(n::Integer, l::List) =
 drop(n::Integer, l::List) =
   @lazy n <= 0 ? l : drop(n-1, rest(l))
 
-take_last(n::Integer, l::List) =
-  @lazy isempty(drop(n, l)) ? l : take_last(n, rest(l))
+takelast(n::Integer, l::List) =
+  @lazy isempty(drop(n, l)) ? l : takelast(n, rest(l))
 
-Base.last(l::List) = @>> l take_last(1) first
+Base.last(l::List) = @>> l takelast(1) first
 
-drop_last(n::Integer, l::List) =
+droplast(n::Integer, l::List) =
   map((x,_)->x, l, drop(n,l))
 
-take_nth(n::Integer, l::List) =
-  @lazy isempty(l) ? [] : first(drop(n-1,l)):take_nth(n, drop(n, l))
+takenth(n::Integer, l::List) =
+  @lazy isempty(l) ? [] : first(drop(n-1,l)):takenth(n, drop(n, l))
 
-for f in [:take :drop :take_last :drop_last :take_nth]
+for f in [:take :drop :takelast :droplast :takenth]
   @eval $f(l::List, n::Integer) = $f(n, l)
 end
 
 takewhile(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, rest(l))
 
-drop_while(pred::Function, l::List) =
-  @lazy isempty(l) || !pred(first(l)) ? l : drop_while(pred, rest(l))
+dropwhile(pred::Function, l::List) =
+  @lazy isempty(l) || !pred(first(l)) ? l : dropwhile(pred, rest(l))
 
 mapply(f::Union(Function, DataType), ls...) =
   @lazy any(isempty, ls) ? [] : prepend(f(map(first, ls)...), mapply(f, map(rest, ls)...))
@@ -128,7 +128,7 @@ distinct(xs::List, seen::Set) =
       distinct(rest(xs), seen) :
       first(xs):distinct(rest(xs), push!(seen, first(xs)))
 
-function group_by(f, xs::List)
+function groupby(f, xs::List)
   groups = Dict()
   for x in xs
     k = f(x)
@@ -144,14 +144,14 @@ partition(n, xs::List; step = n, pad = nothing) =
         (pad == nothing ? [] : list(l * take(n-len, pad))) :
         (l:partition(n, drop(step, xs); step = step, pad = pad))
 
-partition_by(f, xs::List) =
+partitionby(f, xs::List) =
   @lazy isempty(xs) ? [] :
     @with (x = first(xs), v = f(x), run = takewhile(x->f(x)==v, rest(xs))),
-      prepend(x,run):partition_by(f, @lazy drop(length(run)+1, xs))
+      prepend(x,run):partitionby(f, @lazy drop(length(run)+1, xs))
 
 splitat(n, xs::List) = (take(n, xs), drop(n, xs))
 
-splitby(p::Function, xs::List) = takewhile(p, xs), drop_while(p, xs)
+splitby(p::Function, xs::List) = takewhile(p, xs), dropwhile(p, xs)
 
 walk(inner, outer, xs::List) = @>> xs map(inner) outer
 walk(inner, outer, x) = outer(x)
