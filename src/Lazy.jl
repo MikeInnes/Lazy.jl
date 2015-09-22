@@ -81,7 +81,7 @@ realise(xs::LazyList) =
 for f in [:first :isempty]
   @eval $f(l::LazyList) = $f(realise(l))
 end
-
+#
 rest(l::LazyList) = @lazy rest(realise(l))
 
 ########
