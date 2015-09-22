@@ -71,16 +71,18 @@ isempty(::LinkedList) = false
 
 # Lazy Lists
 
-realise(xs::LazyList) =
-  xs.realised? xs.list : (xs.realised = true; xs.list = xs.f())
-
-for f in [:first :rest :isempty]
-  @eval $f(l::LazyList) = $f(realise(l))
-end
-
 macro lazy(code)
   :(LazyList(() -> seq($(esc(code)))))
 end
+
+realise(xs::LazyList) =
+  xs.realised? xs.list : (xs.realised = true; xs.list = xs.f())
+
+for f in [:first :isempty]
+  @eval $f(l::LazyList) = $f(realise(l))
+end
+
+rest(l::LazyList) = @lazy rest(realise(l))
 
 ########
 # Usage

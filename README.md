@@ -13,7 +13,9 @@ Firstly, the canonical examples, in Julia:
 ```julia
 # Note : prepends. Don't forget the semicolon!
 # Fibonacci sequence defined in terms of itself:
-fibs = @lazy 0:1:(fibs + drop(1, fibs));
+fibs = @lazy 0:big(1):(fibs + drop(1, fibs));
+# or
+fibs = @lazy 0:big(1):(fibs + rest(fibs));
 
 take(20, fibs)
 #> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181)
