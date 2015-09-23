@@ -2,6 +2,8 @@ VERSION > v"0.4-" && __precompile__()
 
 module Lazy
 
+using Compat
+
 ############
 # Utilities
 ############
