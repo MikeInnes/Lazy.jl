@@ -44,16 +44,10 @@ facts("Even squares") do
 end
 
 facts("Threading macros") do
-    temp = @> [2 3] sum
-    @fact temp => 5
-    # Reverse from after index 2
-    temp = @>> 2 reverse([1, 2, 3, 4, 5])
-    @fact temp => [1, 5, 4, 3, 2]
-    temp = @as x 2 begin
-        x^2
-        x + 2
-    end
-    @fact temp => 6
+  @fact ( @> 1 { +(2 + _) } ) => 3
+  @fact ( @> 1 +(2, _) ) => 3
+  @fact ( @> 1 +(_ + 1) ) => 3
+  @fact ( @>> 1 -(0) ) => -1
 end
 
 FactCheck.exitstatus()
