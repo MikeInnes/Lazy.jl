@@ -233,16 +233,32 @@ end
 
 # Other syntax
 
-export c, s, @d
+export c, s, d, @d
 c(xs...) = Any[xs...]
 s(xs...) = Set{Any}(xs)
+d(xs...) = Dict{Any, Any}(xs...)
 
 macro d(xs...)
   @cond if VERSION < v"0.4-"
     Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
   else
-    :(Dict{Any, Any}($(map(esc, xs)...)))
+    :(Dict{Any, Any}($(map(x->esc(prockey(x)), xs)...)))
   end
+end
+
+function prockey(key)
+  @capture(key, (a_:b_) | (a_=>b_)) || error("Invalid json key $key")
+  isa(a, Symbol) && (a = Expr(:quote, a))
+  :($a=>$b)
+end
+
+function procmap(d)
+  @capture(d, {xs__}) || return d
+  :(Dict{Any, Any}($(map(prockey, xs)...)))
+end
+
+macro json(ex)
+  @>> ex MacroTools.prewalk(procmap) esc
 end
 
 macro errs(ex)
