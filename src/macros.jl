@@ -4,7 +4,8 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs,
+  @forward
 
 """
 A switch statement of sorts:
@@ -267,4 +268,11 @@ macro errs(ex)
       showerror(STDERR, e, catch_backtrace())
       println(STDERR)
     end)
+end
+
+macro forward(ex, fs)
+  @capture(ex, T_.field_) || error("Syntax: @forward T.x f, g, h")
+  T = esc(T)
+  fs = isexpr(fs, :tuple) ? map(esc, fs.args) : [esc(fs)]
+  :($([:($f(x::$T, args...) = $f(x.$field, args...)) for f in fs]...);nothing)
 end
