@@ -64,10 +64,10 @@ length(l::List) = isempty(l) ? 0 : 1 + length(rest(l))
 
 Base.endof(l::List) = error("Cant use `end` with List.")
 
-take(n::Integer, l::List) =
+Base.take(n::Integer, l::List) =
   @lazy n <= 0 || isempty(l) ? [] : prepend(first(l), take(n-1, rest(l)))
 
-drop(n::Integer, l::List) =
+Base.drop(n::Integer, l::List) =
   @lazy n <= 0 ? l : drop(n-1, rest(l))
 
 takelast(n::Integer, l::List) =
