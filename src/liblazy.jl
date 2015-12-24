@@ -44,6 +44,10 @@ concat(xs::List, ys::List) =
 
 import Base: length, map, reduce, filter, reverse
 
+if VERSION >= v"0.4.0"
+    import Base: drop, take
+end
+
 export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
        lazymap, reductions, remove, dorun, foreach, distinct,
        groupby, partition, partitionby, splitat, splitby,
@@ -64,10 +68,10 @@ length(l::List) = isempty(l) ? 0 : 1 + length(rest(l))
 
 Base.endof(l::List) = error("Cant use `end` with List.")
 
-Base.take(n::Integer, l::List) =
+take(n::Integer, l::List) =
   @lazy n <= 0 || isempty(l) ? [] : prepend(first(l), take(n-1, rest(l)))
 
-Base.drop(n::Integer, l::List) =
+drop(n::Integer, l::List) =
   @lazy n <= 0 ? l : drop(n-1, rest(l))
 
 takelast(n::Integer, l::List) =
@@ -82,7 +86,9 @@ takenth(n::Integer, l::List) =
   @lazy isempty(l) ? [] : first(drop(n-1,l)):takenth(n, drop(n, l))
 
 for f in [:take :drop :takelast :droplast :takenth]
-  @eval $f(l::List, n::Integer) = $f(n, l)
+    # This avoid the ambiguity with the base versions
+    @eval $f(l::List, n::Int) = $f(n, l)
+    @eval $f(l::List, n::Integer) = $f(n, l)
 end
 
 takewhile(pred::Function, l::List) =
