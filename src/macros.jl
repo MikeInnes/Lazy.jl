@@ -239,6 +239,17 @@ c(xs...) = Any[xs...]
 s(xs...) = Set{Any}(xs)
 d(xs...) = Dict{Any, Any}(xs...)
 
+"""
+Creates a typed dictionary:
+
+    macro d(xs...)
+      @cond if VERSION < v"0.4-"
+        Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
+      else
+        :(Dict{Any, Any}($(map(x->esc(prockey(x)), xs)...)))
+      end
+    end
+"""
 macro d(xs...)
   @cond if VERSION < v"0.4-"
     Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
