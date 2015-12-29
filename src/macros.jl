@@ -240,15 +240,12 @@ s(xs...) = Set{Any}(xs)
 d(xs...) = Dict{Any, Any}(xs...)
 
 """
-Creates a typed dictionary:
+Creates a typed dictionary, e.g.
 
-    macro d(xs...)
-      @cond if VERSION < v"0.4-"
-        Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
-      else
-        :(Dict{Any, Any}($(map(x->esc(prockey(x)), xs)...)))
-      end
-    end
+   julia> @d(a=>1,b=>2)
+   Dict{Any,Any} with 2 entries:
+     :a => 1
+     :b => 2
 """
 macro d(xs...)
   @cond if VERSION < v"0.4-"
