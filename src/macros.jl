@@ -239,6 +239,14 @@ c(xs...) = Any[xs...]
 s(xs...) = Set{Any}(xs)
 d(xs...) = Dict{Any, Any}(xs...)
 
+"""
+Creates a typed dictionary, e.g.
+
+   julia> @d(a=>1,b=>2)
+   Dict{Any,Any} with 2 entries:
+     :a => 1
+     :b => 2
+"""
 macro d(xs...)
   @cond if VERSION < v"0.4-"
     Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
