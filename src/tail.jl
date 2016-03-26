@@ -2,31 +2,30 @@ using MacroTools
 
 # Tail call operations
 
-function lastcalls(ex, f)
-  isexpr(ex, :block) && return :(begin $(lastcalls(ex.args, f)...) end)
+function lastcalls(f, ex)
+  isexpr(ex, :block) && return :(begin $(lastcalls(f, ex.args)...) end)
   @match ex begin
-    g_(__)         => f(ex)
-    let __ end     => :(let $(lastcalls(ex.args, f)...) end)
-    (c_ ? y_ : n_) => :($c ? $(lastcalls(y, f)) : $(lastcalls(n, f)))
-    (a_ && b_)     => :($a && $(lastcalls(b, f)))
-    (a_ || b_)     => :($a || $(lastcalls(b, f)))
-    _              => ex
+    let __ end     => :(let $(lastcalls(f, ex.args)...) end)
+    (c_ ? y_ : n_) => :($c ? $(lastcalls(f, y)) : $(lastcalls(f, n)))
+    (a_ && b_)     => :($a && $(lastcalls(f, b)))
+    (a_ || b_)     => :($a || $(lastcalls(f, b)))
+    _              => f(ex)
   end
 end
 
-lastcalls(ex::Array, f) =
+lastcalls(f, ex::Array) =
   isempty(ex) ? ex :
-    [ex[1:end-1]..., lastcalls(ex[end], f)]
+    [ex[1:end-1]..., lastcalls(f, ex[end])]
 
-function retcalls(ex, f)
+function retcalls(f, ex)
   @match ex begin
-    (return x_) => :(return $(lastcalls(x, f)))
-    _Expr       => Expr(ex.head, map(ex->retcalls(ex, f), ex.args)...)
+    (return x_) => :(return $(lastcalls(f, x)))
+    _Expr       => Expr(ex.head, map(ex->retcalls(f, ex), ex.args)...)
     _           => ex
   end
 end
 
-tailcalls(ex, f) = @> ex lastcalls(f) retcalls(f)
+tailcalls(f, ex) = @>> ex lastcalls(f) retcalls(f)
 
 # Tail recursion
 
@@ -36,8 +35,10 @@ export @rec, @bounce
 tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
 
 tco(ex, f, dummy, start) =
-  ex.args[1] ≠ f ? ex :
-    :($(tupleassign(dummy, ex.args[2:end])); @goto $start)
+  @capture(ex, $f(args__)) ?
+    :($(tupleassign(dummy, args)); @goto $start) :
+    ex
+
 
 """
 Enables efficient recursive functions, e.g.
@@ -74,7 +75,7 @@ macro rec(def)
            $body
          end
 
-  def.args[2] = tailcalls(body, ex -> tco(ex, f, dummy, start))
+  def.args[2] = tailcalls(ex -> tco(ex, f, dummy, start), body)
   return esc(def)
 end
 
@@ -127,9 +128,9 @@ macro bounce(def)
   def.args[1].args[1] = f_tramp
 
   calls = Symbol[]
-  def.args[2] = tailcalls(def.args[2],
-                          ex -> (isexpr(ex, :call) && push!(calls, ex.args[1]);
-                                 bounce(ex)))
+  def.args[2] = tailcalls(ex -> (isexpr(ex, :call) && push!(calls, ex.args[1]);
+                                 bounce(ex)),
+                          def.args[2])
   quote
     $([trampdef(call) for call in calls]...)
     $def
