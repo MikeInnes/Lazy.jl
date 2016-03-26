@@ -18,10 +18,8 @@ lastcalls(f, ex::Array) =
     [ex[1:end-1]..., lastcalls(f, ex[end])]
 
 function retcalls(f, ex)
-  @match ex begin
-    (return x_) => :(return $(lastcalls(f, x)))
-    _Expr       => Expr(ex.head, map(ex->retcalls(f, ex), ex.args)...)
-    _           => ex
+  MacroTools.postwalk(ex) do ex
+    @capture(ex, return x_) ? :(return $(lastcalls(f, x))) : ex
   end
 end
 
