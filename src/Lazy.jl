@@ -73,8 +73,16 @@ isempty(::LinkedList) = false
 
 # Lazy Lists
 
-realise(xs::LazyList) =
-  xs.realised? xs.list : (xs.realised = true; xs.list = xs.f())
+function realise(xs::LazyList)
+  xs.realised && return xs.list
+  xs.realised = true
+  xs.list = xs.f()
+  # Unroll in a loop to avoid overflow
+  while isa(xs.list, LazyList)
+    xs.list = xs.list.f()
+  end
+  return xs.list
+end
 
 for f in [:first :rest :isempty]
   @eval $f(l::LazyList) = $f(realise(l))
