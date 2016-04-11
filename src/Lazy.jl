@@ -103,6 +103,18 @@ include("collections.jl")
 # Eager
 # -----
 
+# Depending upon Julia and Compat versions, foreach may be defined as
+# a core language generic function. If so, extend rather than define
+# it.
+
+if isdefined(:foreach) && isa(foreach, Function)
+    if VERSION < v"0.5.0-dev+977"
+        import Compat.foreach
+    else
+        import Base.foreach
+    end
+end
+
 export dorun, doall, foreach
 
 @rec dorun(xs::List) = isempty(xs) ? nothing : dorun(rest(xs))
