@@ -42,7 +42,7 @@ concat(xs::List, ys::List) =
 # Manipulation
 # ------------
 
-import Base: length, map, reduce, filter, reverse
+import Base: length, map, reduce, filter, reverse, Predicate
 
 if VERSION >= v"0.4.0"
     import Base: drop, take
@@ -179,8 +179,8 @@ import Base: any, all
   isempty(xs) == isempty(ys) &&
     (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
 
-any(f::Function, xs::List) = @>> xs map(f) any
+any(f::Predicate, xs::List) = @>> xs map(f) any
 @rec any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
 
-all(f::Function, xs::List) = @>> xs map(f) all
+all(f::Predicate, xs::List) = @>> xs map(f) all
 @rec all(xs::List) = isempty(xs) ? true : first(xs) && all(rest(xs))
