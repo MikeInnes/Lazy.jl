@@ -300,18 +300,17 @@ macro iter(ex)
   @capture(ex, x_::T_ -> it_) || error("Use @iter x::T -> y ...")
   @capture(it, $x.f_) &&
     return :(@forward $(esc(T)).$f Base.start, Base.next, Base.done)
-  @esc x T it
   quote
     @inline function Base.start($x::$T)
       it = $it
-      SubIter(it, Base.start(it))
+      Lazy.SubIter(it, Base.start(it))
     end
-    @inline function Base.next(::$T, sub::SubIter)
+    @inline function Base.next(::$T, sub::Lazy.SubIter)
       next, state = Base.next(sub.iter, sub.state)
-      next, SubIter(sub.iter, state)
+      next, Lazy.SubIter(sub.iter, state)
     end
-    @inline function Base.done(::$T, sub::SubIter)
+    @inline function Base.done(::$T, sub::Lazy.SubIter)
       Base.done(sub.iter, sub.state)
     end
-  end
+  end |> esc
 end
