@@ -5,7 +5,7 @@ using MacroTools
 import Base: replace
 
 export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs,
-  @forward
+  @forward, @iter
 
 """
 A switch statement of sorts:
@@ -285,4 +285,33 @@ macro forward(ex, fs)
   :($([:($f(x::$T, args...) = (Base.@_inline_meta; $f(x.$field, args...)))
        for f in fs]...);
     nothing)
+end
+
+# Forwarding iteration
+
+immutable SubIter{I,S}
+  iter::I
+  state::S
+end
+
+# Julia#16096
+
+macro iter(ex)
+  @capture(ex, x_::T_ -> it_) || error("Use @iter x::T -> y ...")
+  @capture(it, $x.f_) &&
+    return :(@forward $(esc(T)).$f Base.start, Base.next, Base.done)
+  @esc x T it
+  quote
+    @inline function Base.start($x::$T)
+      it = $it
+      SubIter(it, Base.start(it))
+    end
+    @inline function Base.next(::$T, sub::SubIter)
+      next, state = Base.next(sub.iter, sub.state)
+      next, SubIter(sub.iter, state)
+    end
+    @inline function Base.done(::$T, sub::SubIter)
+      Base.done(sub.iter, sub.state)
+    end
+  end
 end
