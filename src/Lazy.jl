@@ -30,8 +30,7 @@ end
 
 import Base: isempty, first, colon
 
-export List, list, @lazy,
-       prepend, rest
+export List, list, @lazy, prepend
 
 abstract List
 
