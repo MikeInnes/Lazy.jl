@@ -42,3 +42,13 @@ for f in (:takewhile, :splitby)
 end
 
 Base.get!(d, k, v) = (d[k] = get(d, k, v))
+
+import Base.@get!
+
+function groupby(f, xs)
+  result = d()
+  for x in xs
+    push!(@get!(result, f(x), []), x)
+  end
+  return result
+end
