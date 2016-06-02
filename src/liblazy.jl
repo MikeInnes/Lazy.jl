@@ -2,11 +2,12 @@
 # Construction
 # ------------
 
-export seq, constantly, repeatedly, cycle, iterate, range,
-       concat
+export seq, constantly, repeatedly, iterate, concat
 
 seq(xs::List) = xs
 seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
+
+seq(xs::Tuple) = seq(collect(xs))
 
 seq(itr) = seq(itr, start(itr))
 seq(itr, state) =
