@@ -255,21 +255,6 @@ macro d(xs...)
   end
 end
 
-function prockey(key)
-  @capture(key, (a_:b_) | (a_=>b_)) || error("Invalid json key $key")
-  isa(a, Symbol) && (a = Expr(:quote, a))
-  :($a=>$b)
-end
-
-function procmap(d)
-  @capture(d, {xs__}) || return d
-  :(Dict{Any, Any}($(map(prockey, xs)...)))
-end
-
-macro json(ex)
-  @>> ex MacroTools.prewalk(procmap) esc
-end
-
 macro errs(ex)
   :(try $(esc(ex))
     catch e
