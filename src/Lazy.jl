@@ -83,13 +83,15 @@ function realise(xs::LazyList)
   return xs.list
 end
 
-for f in [:first :tail :isempty]
-  @eval $f(l::LazyList) = $f(realise(l))
-end
-
 macro lazy(code)
   :(LazyList(() -> seq($(esc(code)))))
 end
+
+for f in [:first :isempty]
+  @eval $f(l::LazyList) = $f(realise(l))
+end
+
+tail(l::LazyList) = @lazy tail(realise(l))
 
 ########
 # Usage
@@ -159,7 +161,7 @@ end
 
 @listable +, -, Base.exp, Base.log, Base.sin, Base.cos, Base.tan
 
-const fibs = @lazy 0:big(1):(fibs + drop(1, fibs))
+const fibs = @lazy 0:big(1):(fibs + tail(fibs))
 
 isprime(n) =
   @>> primes begin
