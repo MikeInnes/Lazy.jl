@@ -42,7 +42,7 @@ tco(ex, f, dummy, start) =
 Enables efficient recursive functions, e.g.
 
     @rec reduce(f::Function, v, xs::List) =
-      isempty(xs) ? v : reduce(f, f(v, first(xs)), rest(xs))
+      isempty(xs) ? v : reduce(f, f(v, first(xs)), tail(xs))
 
 Without `@rec` this function would overflow the stack for
 lists of 80,000 or more elements.

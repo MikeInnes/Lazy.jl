@@ -30,7 +30,7 @@ end
 
 import Base: isempty, first, colon
 
-export List, list, @lazy, prepend
+export List, list, @lazy, prepend, tail
 
 abstract List
 
@@ -38,8 +38,8 @@ type EmptyList <: List
 end
 
 type LinkedList <: List
-  first
-  rest::List
+  head
+  tail::List
 end
 
 type LazyList <: List
@@ -53,7 +53,7 @@ end
 # Empty List
 
 first(::EmptyList) = nothing
-rest(l::EmptyList) = l
+tail(l::EmptyList) = l
 isempty(::EmptyList) = true
 
 # Lists
@@ -65,8 +65,8 @@ colon(x,y,xs::List) = x:prepend(y,xs)
 list() = EmptyList()
 list(x, xs...) = x:list(xs...)
 
-first(l::LinkedList) = l.first
-rest(l::LinkedList) = l.rest
+first(l::LinkedList) = l.head
+tail(l::LinkedList) = l.tail
 
 isempty(::LinkedList) = false
 
@@ -83,7 +83,7 @@ function realise(xs::LazyList)
   return xs.list
 end
 
-for f in [:first :rest :isempty]
+for f in [:first :tail :isempty]
   @eval $f(l::LazyList) = $f(realise(l))
 end
 
@@ -116,7 +116,7 @@ end
 
 export dorun, doall, foreach
 
-@rec dorun(xs::List) = isempty(xs) ? nothing : dorun(rest(xs))
+@rec dorun(xs::List) = isempty(xs) ? nothing : dorun(tail(xs))
 doall(xs::List) = (dorun(xs); xs)
 
 foreach(f, ls::List...) = map(f, ls...) |> dorun
@@ -127,16 +127,16 @@ foreach(f, ls::List...) = map(f, ls...) |> dorun
 
 import Base: getindex, setindex!, start, next, done
 
-getindex(l::List, i::Int) = i <= 1 ? first(l) : rest(l)[i-1]
+getindex(l::List, i::Int) = i <= 1 ? first(l) : tail(l)[i-1]
 getindex(l::List, r::UnitRange) = take(r.len, drop(r.start - 1, l))
 
-setindex!(xs::LinkedList, v, i::Integer) = i <= 1 ? xs.first = v : (rest(xs)[i-1] = v)
-setindex!(xs::LazyList, v, i::Integer) = i <= 1 ? realise(xs)[1] = v : (rest(xs)[i-1] = v)
+setindex!(xs::LinkedList, v, i::Integer) = i <= 1 ? xs.first = v : (tail(xs)[i-1] = v)
+setindex!(xs::LazyList, v, i::Integer) = i <= 1 ? realise(xs)[1] = v : (tail(xs)[i-1] = v)
 
 # Iteration over a list holds on to the head
 start(xs::List) = xs
 done(::List, xs::List) = isempty(xs)
-next(::List, xs::List) = first(xs), rest(xs)
+next(::List, xs::List) = first(xs), tail(xs)
 
 ###########
 # Printing

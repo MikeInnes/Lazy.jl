@@ -32,7 +32,7 @@ range(x=1) = # Optimisation for y=Inf
   @lazy x:range(x+1)
 
 concat(xs::List, ys::List) =
-  @lazy isempty(xs) ? ys : (first(xs):concat(rest(xs), ys))
+  @lazy isempty(xs) ? ys : (first(xs):concat(tail(xs), ys))
 
 *(xs::List, ys::List) = concat(xs, ys)
 *(xs::BitArray, ys::List) = concat(seq(xs), ys)
@@ -57,7 +57,7 @@ export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dr
 riffle(ls...) = riffle(map(seq, ls)...)
 riffle(ls::List...) =
   @lazy any(isempty, ls) ? [] :
-    seq(map(first, ls)) * riffle(map(rest, ls)...)
+    seq(map(first, ls)) * riffle(map(tail, ls)...)
 
 interpose(xs, args...) = interpose(seq(xs), args...)
 interpose(xs::List, y, n = 1) =
@@ -65,18 +65,18 @@ interpose(xs::List, y, n = 1) =
        take(n, xs) * (isempty(drop(n, xs)) ? [] :
                         prepend(y, interpose(drop(n, xs), y, n)))
 
-length(l::List) = isempty(l) ? 0 : 1 + length(rest(l))
+length(l::List) = isempty(l) ? 0 : 1 + length(tail(l))
 
 Base.endof(l::List) = error("Cant use `end` with List.")
 
 take(n::Integer, l::List) =
-  @lazy n <= 0 || isempty(l) ? [] : prepend(first(l), take(n-1, rest(l)))
+  @lazy n <= 0 || isempty(l) ? [] : prepend(first(l), take(n-1, tail(l)))
 
 drop(n::Integer, l::List) =
-  @lazy n <= 0 ? l : drop(n-1, rest(l))
+  @lazy n <= 0 ? l : drop(n-1, tail(l))
 
 takelast(n::Integer, l::List) =
-  @lazy isempty(drop(n, l)) ? l : takelast(n, rest(l))
+  @lazy isempty(drop(n, l)) ? l : takelast(n, tail(l))
 
 Base.last(l::List) = @>> l takelast(1) first
 
@@ -93,13 +93,13 @@ for f in [:take :drop :takelast :droplast :takenth]
 end
 
 takewhile(pred::Function, l::List) =
-  @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, rest(l))
+  @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, tail(l))
 
 dropwhile(pred::Function, l::List) =
-  @lazy isempty(l) || !pred(first(l)) ? l : dropwhile(pred, rest(l))
+  @lazy isempty(l) || !pred(first(l)) ? l : dropwhile(pred, tail(l))
 
 mapply(f::@compat(Union{Function, DataType}), ls...) =
-  @lazy any(isempty, ls) ? [] : prepend(f(map(first, ls)...), mapply(f, map(rest, ls)...))
+  @lazy any(isempty, ls) ? [] : prepend(f(map(first, ls)...), mapply(f, map(tail, ls)...))
 
 # Resolves amibguity error
 map(f::Function, ls::List...) = mapply(f, ls...)
@@ -108,21 +108,21 @@ map(f::DataType, ls::List...) = mapply(f, ls...)
 lazymap(f::@compat(Union{Function, DataType}), ls...) = map(f, map(seq, ls)...)
 
 @rec reduce(f::Function, v, xs::List) =
-  isempty(xs) ? v : reduce(f, f(v, first(xs)), rest(xs))
+  isempty(xs) ? v : reduce(f, f(v, first(xs)), tail(xs))
 
 reduce(f::Function, xs::List) =
-  isempty(xs) ? f() : reduce(f, first(xs), rest(xs))
+  isempty(xs) ? f() : reduce(f, first(xs), tail(xs))
 
 reductions(f::Function, v, xs::List) =
-  @lazy isempty(xs) ? [] : v:reductions(f, f(v, first(xs)), rest(xs))
+  @lazy isempty(xs) ? [] : v:reductions(f, f(v, first(xs)), tail(xs))
 
 reductions(f::Function, xs::List) =
-  @lazy isempty(xs) ? [] : reductions(f, first(xs), rest(xs))
+  @lazy isempty(xs) ? [] : reductions(f, first(xs), tail(xs))
 
 filter(f::Function, xs::List) =
   @lazy isempty(xs) ? [] :
-        f(first(xs)) ? (first(xs):filter(f, rest(xs))) :
-        filter(f, rest(xs))
+        f(first(xs)) ? (first(xs):filter(f, tail(xs))) :
+        filter(f, tail(xs))
 
 remove(f::Function, xs::List) = filter(x->!f(x), xs)
 
@@ -133,8 +133,8 @@ distinct(xs::List) = distinct(xs, Set())
 distinct(xs::List, seen::Set) =
   @lazy isempty(xs) ? [] :
     first(xs) in seen ?
-      distinct(rest(xs), seen) :
-      first(xs):distinct(rest(xs), push!(seen, first(xs)))
+      distinct(tail(xs), seen) :
+      first(xs):distinct(tail(xs), push!(seen, first(xs)))
 
 function groupby(f, xs::List)
   groups = Dict()
@@ -154,7 +154,7 @@ partition(n, xs::List; step = n, pad = nothing) =
 
 partitionby(f, xs::List) =
   @lazy isempty(xs) ? [] :
-    @with (x = first(xs), v = f(x), run = takewhile(x->f(x)==v, rest(xs))),
+    @with (x = first(xs), v = f(x), run = takewhile(x->f(x)==v, tail(xs))),
       prepend(x,run):partitionby(f, @lazy drop(length(run)+1, xs))
 
 splitat(n, xs::List) = (take(n, xs), drop(n, xs))
@@ -178,10 +178,10 @@ import Base: any, all
 
 ==(xs::List, ys::List) =
   isempty(xs) == isempty(ys) &&
-    (isempty(xs) || first(xs) == first(ys) && rest(xs) == rest(ys))
+    (isempty(xs) || first(xs) == first(ys) && tail(xs) == tail(ys))
 
 any(f::Predicate, xs::List) = @>> xs map(f) any
-@rec any(xs::List) = isempty(xs) ? false : first(xs) || any(rest(xs))
+@rec any(xs::List) = isempty(xs) ? false : first(xs) || any(tail(xs))
 
 all(f::Predicate, xs::List) = @>> xs map(f) all
-@rec all(xs::List) = isempty(xs) ? true : first(xs) && all(rest(xs))
+@rec all(xs::List) = isempty(xs) ? true : first(xs) && all(tail(xs))
