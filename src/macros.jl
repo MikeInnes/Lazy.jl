@@ -251,7 +251,7 @@ macro d(xs...)
   @cond if VERSION < v"0.4-"
     Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
   else
-    :(Dict{Any, Any}($(map(x->esc(prockey(x)), xs)...)))
+    :(Dict{Any, Any}($(map(esc, xs)...)))
   end
 end
 
