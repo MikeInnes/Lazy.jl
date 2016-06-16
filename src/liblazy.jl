@@ -51,8 +51,7 @@ end
 
 export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
        lazymap, reductions, remove, dorun, foreach, distinct,
-       groupby, partition, partitionby, splitat, splitby,
-       walk, prewalk, postwalk, flatten
+       groupby, partition, partitionby, splitat, splitby, flatten
 
 riffle(ls...) = riffle(map(seq, ls)...)
 riffle(ls::List...) =
