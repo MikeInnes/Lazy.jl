@@ -6,6 +6,8 @@ module Lazy
 # Utilities
 ############
 
+using Compat
+
 include("macros.jl")
 include("dynamic.jl")
 include("tail.jl")
@@ -13,8 +15,6 @@ include("tail.jl")
 export @listable
 
 import Base: *, ==, +, -
-
-using Compat
 
 macro listable(f)
   if typeof(f) == Expr && f.head == :tuple
@@ -147,7 +147,7 @@ next(::List, xs::List) = first(xs), tail(xs)
 Base.show(io::IO, xs::List) =
   foreach(x->print(io,x), ["("] * interpose(xs, " ") * [")"])
 
-function Base.writemime(io::IO, ::MIME"text/plain", xs::List)
+@compat function show(io::IO, ::MIME"text/plain", xs::List)
   isempty(xs) && return println(io, "List()")
 
   print(io, "List:")

@@ -79,7 +79,7 @@ end
 
 # Trampolining
 
-trampname(f) = symbol(string("#__", f, "_tramp__"))
+@compat trampname(f) = Symbol(string("#__", f, "_tramp__"))
 
 type Bounce
   f::Function
