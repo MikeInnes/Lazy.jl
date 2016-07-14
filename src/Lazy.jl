@@ -6,6 +6,8 @@ module Lazy
 # Utilities
 ############
 
+using Compat
+
 include("macros.jl")
 include("dynamic.jl")
 include("tail.jl")
@@ -13,8 +15,6 @@ include("tail.jl")
 export @listable
 
 import Base: *, ==, +, -
-
-using Compat
 
 macro listable(f)
   if typeof(f) == Expr && f.head == :tuple
