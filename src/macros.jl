@@ -88,10 +88,9 @@ macro >(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   thread(x, ex) =
-    isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
-                                    error("Unsupported expression $ex in @>")
+    Expr(:call, ex, x)
 
   thread(x, exs...) = reduce(thread, x, exs)
 
