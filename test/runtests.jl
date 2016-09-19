@@ -1,5 +1,5 @@
 using Lazy
-import Lazy: rest, cycle, range, drop, take
+import Lazy: cycle, range, drop, take
 using FactCheck
 
 facts("Lists") do
@@ -17,7 +17,7 @@ facts("Lists") do
     @fact range(1, 5)[-1] --> 1
     @fact list(1, 2, 3) * list(4, 5, 6) --> list(1, 2, 3, 4, 5, 6)
     @fact first(list(1, 2, 3)) --> 1
-    @fact rest(list(1, 2, 3)) --> list(2, 3)
+    @fact tail(list(1, 2, 3)) --> list(2, 3)
     @fact flatten(list(1,2,list(3,4))) --> list(1, 2, 3, 4)
     @fact list(1,2,list(3,4))[3] --> list(3, 4)
 end
