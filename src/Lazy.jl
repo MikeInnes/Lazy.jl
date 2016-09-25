@@ -21,7 +21,7 @@ macro listable(f)
     return Expr(:block, [:(@listable $f) for f in f.args]...)
   end
   f = esc(f)
-  :($f(ls::List...) = map($f, ls...))
+  :($f(l1::List, ls::List...) = map($f, l1, ls...))
 end
 
 ########
