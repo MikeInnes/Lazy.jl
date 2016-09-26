@@ -56,4 +56,8 @@ facts("Threading macros") do
     @fact temp --> 6
 end
 
+facts("Listables") do
+    @fact_throws MethodError sin()
+end
+
 FactCheck.exitstatus()
