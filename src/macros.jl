@@ -298,3 +298,32 @@ macro iter(ex)
     end
   end |> esc
 end
+
+# Init macro
+
+export @init
+
+macro definit()
+  quote
+    if !isdefined(:__inits__)
+      const $(esc(:__inits__)) = Function[]
+    end
+    if !isdefined(:__init__)
+      $(esc(:__init__))() = @init
+    end
+  end
+end
+
+macro init(ex)
+  quote
+    @definit
+    push!($(esc(:__inits__)), () -> $(esc(ex)))
+    nothing
+  end
+end
+
+macro init()
+  :(for f in __inits__
+      f()
+    end) |> esc
+end
