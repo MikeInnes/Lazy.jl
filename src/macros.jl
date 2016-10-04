@@ -314,7 +314,7 @@ macro definit()
   end
 end
 
-macro init(ex)
+function initm(ex)
   quote
     @definit
     push!($(esc(:__inits__)), () -> $(esc(ex)))
@@ -322,8 +322,12 @@ macro init(ex)
   end
 end
 
-macro init()
+function initm()
   :(for f in __inits__
       f()
     end) |> esc
+end
+
+macro init(args...)
+  initm(args...)
 end
