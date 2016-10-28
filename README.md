@@ -55,7 +55,7 @@ List:
 39204
 ```
 
-But lazy lists aren't just for mathematical tricks; you can use them very practically for things like file IO. For example, you might represent the lines of a terabyte-large file with a lazy list; you can process the lines as any other list, letting the IO happen in the background. See also [mynx](https://github.com/one-more-minute/mynx), which handles a real-time API by giving you an infinite list of objects which haven't been created yet.
+But lazy lists aren't just for mathematical tricks; you can use them very practically for things like file IO. For example, you might represent the lines of a terabyte-large file with a lazy list; you can process the lines as any other list, letting the IO happen in the background.
 
 ```julia
 # TODO: lineseq example
