@@ -45,8 +45,10 @@ concat(xs::List, ys::List) =
 
 import Base: length, map, reduce, filter, reverse, Predicate
 
-if VERSION >= v"0.4.0"
-    import Base: drop, take
+if VERSION >= v"0.6.0-dev.1015"
+  import Base.Iterators: drop, take
+elseif VERSION >= v"0.4.0"
+  import Base: drop, take
 end
 
 export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
