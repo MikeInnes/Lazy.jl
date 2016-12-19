@@ -180,7 +180,7 @@ import Base: any, all
 immutable Predicate{F}
   f::F
 end
-(pred::Predicate)(x) = pred.f(x)::Bool
+@compat (pred::Predicate)(x) = pred.f(x)::Bool
 
 ==(xs::List, ys::List) =
   isempty(xs) == isempty(ys) &&
