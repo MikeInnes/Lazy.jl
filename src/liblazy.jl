@@ -43,7 +43,7 @@ concat(xs::List, ys::List) =
 # Manipulation
 # ------------
 
-import Base: length, map, reduce, filter, reverse, Predicate
+import Base: length, map, reduce, filter, reverse
 
 if VERSION >= v"0.6.0-dev.1015"
   import Base.Iterators: drop, take
@@ -176,6 +176,11 @@ flatten(xs::List) = reduce((xs, x) -> xs*flatten(x), list(), xs)
 # ----------
 
 import Base: any, all
+
+immutable Predicate{F}
+  f::F
+end
+(pred::Predicate)(x) = pred.f(x)::Bool
 
 ==(xs::List, ys::List) =
   isempty(xs) == isempty(ys) &&
