@@ -177,17 +177,12 @@ flatten(xs::List) = reduce((xs, x) -> xs*flatten(x), list(), xs)
 
 import Base: any, all
 
-immutable Predicate{F}
-  f::F
-end
-@compat (pred::Predicate)(x) = pred.f(x)::Bool
-
 ==(xs::List, ys::List) =
   isempty(xs) == isempty(ys) &&
     (isempty(xs) || first(xs) == first(ys) && tail(xs) == tail(ys))
 
-any(f::Predicate, xs::List) = @>> xs map(f) any
+any(f, xs::List) = @>> xs map(f) any
 @rec any(xs::List) = isempty(xs) ? false : first(xs) || any(tail(xs))
 
-all(f::Predicate, xs::List) = @>> xs map(f) all
+all(f, xs::List) = @>> xs map(f) all
 @rec all(xs::List) = isempty(xs) ? true : first(xs) && all(tail(xs))
