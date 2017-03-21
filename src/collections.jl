@@ -41,8 +41,6 @@ for f in (:takewhile, :splitby)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
 end
 
-Base.get!(d, k, v) = (d[k] = get(d, k, v))
-
 import Base.@get!
 
 function groupby(f, xs)
