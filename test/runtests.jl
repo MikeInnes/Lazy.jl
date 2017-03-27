@@ -60,4 +60,19 @@ facts("Listables") do
     @fact_throws MethodError sin()
 end
 
+facts("any/all") do
+    let xs = list(true, false, false)
+        @pending any(identity, xs) --> true
+        @pending any(xs) --> true
+        @pending all(identity, xs) --> false
+        @pending all(xs) --> false
+    end
+    let yy = list(1, 0, 1)
+        @pending any(Bool, yy) --> true
+        @pending all(Bool, yy) --> false
+    end
+    # Base method--ensures no ambiguity with methods here
+    @fact all([true true; true true], 1) --> [true true]
+end
+
 FactCheck.exitstatus()

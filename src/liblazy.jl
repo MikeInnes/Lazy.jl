@@ -181,8 +181,16 @@ import Base: any, all
   isempty(xs) == isempty(ys) &&
     (isempty(xs) || first(xs) == first(ys) && tail(xs) == tail(ys))
 
-any(f, xs::List) = @>> xs map(f) any
-@rec any(xs::List) = isempty(xs) ? false : first(xs) || any(tail(xs))
+if isdefined(Base, :Predicate)
+  any(f::Base.Predicate, xs::List) = @>> xs map(f) any
+  all(f::Base.Predicate, xs::List) = @>> xs map(f) all
+else
+  any(f, xs::List) = @>> xs map(f) any
+  all(f, xs::List) = @>> xs map(f) all
+end
 
-all(f, xs::List) = @>> xs map(f) all
+@rec any(xs::List) = isempty(xs) ? false : first(xs) || any(tail(xs))
+any(::typeof(@functorize(identity)), xs::List) = any(xs)
+
 @rec all(xs::List) = isempty(xs) ? true : first(xs) && all(tail(xs))
+all(::typeof(@functorize(identity)), xs::List) = all(xs)
