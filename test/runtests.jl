@@ -75,4 +75,8 @@ facts("any/all") do
     @fact all([true true; true true], 1) --> [true true]
 end
 
+facts("Function call building") do
+  @fact (@> Args() add(1) add(1) call(+) ) => 2
+end
+
 FactCheck.exitstatus()

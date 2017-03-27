@@ -172,4 +172,22 @@ isprime(n) =
 
 const primes = filter(isprime, range(2))
 
+type Args
+  pos::Vector{Any}
+  key::Vector{Tuple}
+end
+
+function Args()
+  Args(convert(Vector{Any}, [] ),
+       convert(Vector{Tuple}, [] ) )
+end
+
+function add(args::Args, pos...; key...)
+  Args([args.pos, pos...], [args.key, key...])
+end
+
+function call(args::Args, fun)
+  fun(args.pos... ; args.key...)
+end
+
 end
