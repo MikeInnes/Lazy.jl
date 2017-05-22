@@ -32,7 +32,7 @@ import Base: isempty, first, colon
 
 export List, list, @lazy, prepend, tail
 
-abstract List
+@compat abstract type List end
 
 type EmptyList <: List
 end
