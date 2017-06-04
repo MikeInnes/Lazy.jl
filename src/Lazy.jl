@@ -72,13 +72,18 @@ isempty(::LinkedList) = false
 
 # Lazy Lists
 
-function realise(xs::LazyList)
+function realise!(xs::LazyList)
   xs.realised && return xs.list
   xs.realised = true
   xs.list = xs.f()
+  return xs.list
+end
+
+function realise(xs::LazyList)
+  realise!(xs)
   # Unroll in a loop to avoid overflow
   while isa(xs.list, LazyList)
-    xs.list = xs.list.f()
+    xs.list = realise!(xs.list)
   end
   return xs.list
 end
