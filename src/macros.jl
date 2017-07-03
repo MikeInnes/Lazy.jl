@@ -89,6 +89,7 @@ macro >(exs...)
 
   thread(x, ex) =
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
+    @capture(ex, f_.(xs__))       ? :($f.($x, $(xs...))) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
     Expr(:call, ex, x)
 
@@ -110,6 +111,7 @@ macro >>(exs...)
   thread(x, ex) =
     isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args..., x) :
+    @capture(ex, f_.(xs__))       ? :($f.($(xs...), $x)) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>>")
 
