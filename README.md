@@ -11,6 +11,8 @@ Lazy.jl provides Julia with the cornerstones of functional programming - lazily-
 Firstly, the canonical examples, in Julia:
 
 ```julia
+using Lazy
+
 # Note : prepends. Don't forget the semicolon!
 # Fibonacci sequence defined in terms of itself:
 fibs = @lazy 0:1:(fibs + drop(1, fibs));
@@ -27,7 +29,7 @@ isprime(n) =
   end
 
 # the prime numbers defined in terms of isprime:
-primes = filter(isprime, range(2));
+primes = filter(isprime, Lazy.range(2));
 
 take(20, primes)
 #> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71)
@@ -41,7 +43,7 @@ For the unfamiliar, laziness just means that the elements of the list aren't act
 
 ```julia
 # Even square numbers:
-> esquares = @>> range() map(x->x^2) filter(iseven);
+> esquares = @>> Lazy.range() map(x->x^2) filter(iseven);
 # first 5
 > take(5, esquares)
 List:
@@ -70,7 +72,7 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 
 ```julia
 # Just like x |> f etc.
-@> x f = f(x)
+@> x f == f(x)
 @> x g f == f(g(x))
 @> x a b c d e == e(d(c(b(a(x)))))
 
