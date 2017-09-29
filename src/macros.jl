@@ -275,7 +275,7 @@ end
 
 # Forwarding iteration
 
-immutable SubIter{I,S}
+struct SubIter{I,S}
   iter::I
   state::S
 end

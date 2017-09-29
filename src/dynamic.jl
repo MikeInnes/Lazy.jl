@@ -44,7 +44,7 @@ import Base: getindex, setindex!
 
 export @dynamic
 
-type Binding{T}
+mutable struct Binding{T}
   root::T
 end
 
@@ -88,23 +88,23 @@ isroot(task::Task) =
 bindings(task::Task) =
   get!(storage(task), :bindings, @d())
 
-bind{T}(b::Binding{T}, v::T, t::Task) =
+bind(b::Binding{T}, v::T, t::Task) where {T} =
   bindings(t)[b] = v
 
-function bind{T}(f::Function, b::Binding{T}, v::T)
+function bind(f::Function, b::Binding{T}, v::T) where T
   t = Task(f)
   bind(b, v, t)
   schedule(t)
   return wait(t)
 end
 
-binding{T}(b::Binding{T}, t::Task = current_task()) =
+binding(b::Binding{T}, t::Task = current_task()) where {T} =
   haskey(bindings(t), b) ? bindings(t)[b]::T :
   isroot(t) ? root(b) : binding(b, parent(t))
 
-set!{T}(b::Binding{T}, v::T, t::Task = current_task()) =
+set!(b::Binding{T}, v::T, t::Task = current_task()) where {T} =
   haskey(bindings(t), b) ? (bindings(t)[b] = v) :
   isroot(t) ? (b.root = v) : set!(b, v, parent(t))
 
 getindex(b::Binding) = binding(b)
-setindex!{T}(b::Binding{T}, v::T) = set!(b, v)
+setindex!(b::Binding{T}, v::T) where {T} = set!(b, v)

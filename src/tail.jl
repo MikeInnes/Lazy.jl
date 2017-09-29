@@ -79,9 +79,9 @@ end
 
 # Trampolining
 
-@compat trampname(f) = Symbol(string("#__", f, "_tramp__"))
+trampname(f) = Symbol(string("#__", f, "_tramp__"))
 
-type Bounce
+mutable struct Bounce
   f::Function
 end
 

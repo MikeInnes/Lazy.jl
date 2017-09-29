@@ -1,6 +1,6 @@
 # TODO: Implement liblazy functions over standard arrays / other collections
 
-function Base.split{T}(xs::Vector{T}, x; keep = true)
+function Base.split(xs::Vector{T}, x; keep = true) where T
   result = Vector{T}[]
   push!(result, T[])
   for i = 1:length(xs)
