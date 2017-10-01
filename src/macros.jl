@@ -264,6 +264,22 @@ macro errs(ex)
     end)
 end
 
+"""
+    @forward T.x functions...
+
+Define methods for `functions` on type `T`, which call the relevant function
+on the field `x`.
+
+# Example
+
+```julia
+struct Wrapper
+    x
+end
+
+@forward Wrapper.x Base.sqrt             # now sqrt(Wrapper(4.0)) == 2.0
+```
+"""
 macro forward(ex, fs)
   @capture(ex, T_.field_) || error("Syntax: @forward T.x f, g, h")
   T = esc(T)
