@@ -186,7 +186,7 @@ else
 end
 
 @rec any(xs::List) = isempty(xs) ? false : first(xs) || any(tail(xs))
-any(::typeof(@functorize(identity)), xs::List) = any(xs)
+any(::typeof(identity), xs::List) = any(xs)
 
 @rec all(xs::List) = isempty(xs) ? true : first(xs) && all(tail(xs))
-all(::typeof(@functorize(identity)), xs::List) = all(xs)
+all(::typeof(identity), xs::List) = all(xs)
