@@ -45,11 +45,7 @@ concat(xs::List, ys::List) =
 
 import Base: length, map, reduce, filter, reverse
 
-if VERSION >= v"0.6.0-dev.1015"
-  import Base.Iterators: drop, take
-elseif VERSION >= v"0.4.0"
-  import Base: drop, take
-end
+import Base.Iterators: drop, take
 
 export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
        lazymap, reductions, remove, dorun, foreach, distinct,
@@ -99,14 +95,14 @@ takewhile(pred::Function, l::List) =
 dropwhile(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? l : dropwhile(pred, tail(l))
 
-mapply(f::@compat(Union{Function, DataType}), ls...) =
+mapply(f::Union{Function, DataType}, ls...) =
   @lazy any(isempty, ls) ? [] : prepend(f(map(first, ls)...), mapply(f, map(tail, ls)...))
 
 # Resolves amibguity error
 map(f::Function, ls::List...) = mapply(f, ls...)
 map(f::DataType, ls::List...) = mapply(f, ls...)
 
-lazymap(f::@compat(Union{Function, DataType}), ls...) = map(f, map(seq, ls)...)
+lazymap(f::Union{Function, DataType}, ls...) = map(f, map(seq, ls)...)
 
 @rec reduce(f::Function, v, xs::List) =
   isempty(xs) ? v : reduce(f, f(v, first(xs)), tail(xs))

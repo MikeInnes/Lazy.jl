@@ -32,17 +32,17 @@ import Base: isempty, first, colon
 
 export List, list, @lazy, prepend, tail
 
-@compat abstract type List end
+abstract type List end
 
-type EmptyList <: List
+mutable struct EmptyList <: List
 end
 
-type LinkedList <: List
+mutable struct LinkedList <: List
   head
   tail::List
 end
 
-type LazyList <: List
+mutable struct LazyList <: List
   list::List
   realised::Bool
   f::Function
@@ -114,11 +114,7 @@ include("collections.jl")
 # it.
 
 if isdefined(:foreach) && isa(foreach, Function)
-    if VERSION < v"0.5.0-dev+977"
-        import Compat.foreach
-    else
-        import Base.foreach
-    end
+    import Base.foreach
 end
 
 export dorun, doall, foreach
@@ -152,7 +148,7 @@ next(::List, xs::List) = first(xs), tail(xs)
 Base.show(io::IO, xs::List) =
   foreach(x->print(io,x), ["("] * interpose(xs, " ") * [")"])
 
-@compat function show(io::IO, ::MIME"text/plain", xs::List)
+function show(io::IO, ::MIME"text/plain", xs::List)
   isempty(xs) && return println(io, "List()")
 
   print(io, "List:")
