@@ -321,29 +321,23 @@ end
 
 export @init
 
-macro definit()
-  quote
-    if !isdefined(:__inits__)
-      const $(esc(:__inits__)) = Function[]
-    end
-    if !isdefined(:__init__)
-      $(esc(:__init__))() = @init
-    end
-  end
-end
-
 function initm(ex)
   quote
-    @definit
+      
+    if !isdefined(@compat(@__MODULE__), :__inits__)
+      const $(esc(:__inits__)) = Function[]
+    end
+    if !isdefined(@compat(@__MODULE__), :__init__)
+      function $(esc(:__init__))()
+        for f in $(esc(:__inits__))
+          f()
+        end
+      end
+    end
+
     push!($(esc(:__inits__)), () -> $(esc(ex)))
     nothing
   end
-end
-
-function initm()
-  :(for f in __inits__
-      f()
-    end) |> esc
 end
 
 macro init(args...)
