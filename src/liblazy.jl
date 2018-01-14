@@ -111,7 +111,12 @@ reduce(f::Function, xs::List) =
   isempty(xs) ? f() : reduce(f, first(xs), tail(xs))
 
 reductions(f::Function, v, xs::List) =
-  @lazy isempty(xs) ? [] : v:reductions(f, f(v, first(xs)), tail(xs))
+  @lazy if isempty(xs)
+      []
+  else
+      acc = f(v, first(xs))
+      acc:reductions(f, acc, tail(xs))
+  end
 
 reductions(f::Function, xs::List) =
   @lazy isempty(xs) ? [] : reductions(f, first(xs), tail(xs))
