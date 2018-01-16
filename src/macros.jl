@@ -212,10 +212,9 @@ End-less let block, e.g.
 """
 macro with(ex)
   @capture(ex, ((bindings__,), body_)) || error("Invalid expression @with $ex")
-  ex = :(let
+  ex = :(let $(bindings...)
            $body
          end)
-  push!(ex.args, bindings...)
   return esc(ex)
 end
 
