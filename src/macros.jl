@@ -4,7 +4,7 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs,
+export @>, @.>, @>>, @.>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs,
   @forward, @iter
 
 """

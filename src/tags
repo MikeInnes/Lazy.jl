@@ -1,0 +1,23 @@
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+$	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^      function $(esc(:__init__))()$/;"	f	language:julia
+.>	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro .>(exs...)$/;"	f	language:julia
+.>>	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro .>>(exs...)$/;"	f	language:julia
+>	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro >(exs...)$/;"	f	language:julia
+>>	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro >>(exs...)$/;"	f	language:julia
+as	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro as(as, exs...)$/;"	f	language:julia
+cond	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro cond(ex)$/;"	f	language:julia
+d	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro d(xs...)$/;"	f	language:julia
+defonce	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro defonce(def)$/;"	f	language:julia
+dotimes	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro dotimes(n, body)$/;"	f	language:julia
+errs	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro errs(ex)$/;"	f	language:julia
+forward	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro forward(ex, fs)$/;"	f	language:julia
+init	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro init(args...)$/;"	f	language:julia
+initm	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^function initm(ex)$/;"	f	language:julia
+iter	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro iter(ex)$/;"	f	language:julia
+oncethen	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro oncethen(expr::Expr)$/;"	f	language:julia
+or	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro or(exs...)$/;"	f	language:julia
+splitswitch	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^function splitswitch(ex)$/;"	f	language:julia
+splitswitch	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^function splitswitch(test, exprs)$/;"	f	language:julia
+switch	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro switch(args...)$/;"	f	language:julia
+with	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro with(ex)$/;"	f	language:julia
+_	/home/phuoc/.julia/v0.6/Lazy/src/macros.jl	/^macro _(args...)$/;"	f	language:julia
