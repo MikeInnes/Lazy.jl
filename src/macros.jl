@@ -99,6 +99,26 @@ macro >(exs...)
 end
 
 """
+Same as `@>`, but broadcasts.
+
+    @.> x g(y, z) f == f.(g.(x, y, z))
+
+    @.> x g f(y, z) == f.(g.(x), y, z)
+"""
+macro .>(exs...)
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
+
+  thread(x, ex) =
+    isexpr(ex, :call, :macrocall) ? Expr(Symbol("."), ex.args[1], Expr(:tuple, x, ex.args[2:end]...)) :
+    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
+    Expr(:call, ex, x)
+
+  thread(x, exs...) = reduce(thread, x, exs)
+
+  esc(thread(exs...))
+end
+
+"""
 Same as `@>`, but threads the last argument.
 
   @>> x g(y, z) f == f(g(y, z, x))
@@ -112,6 +132,27 @@ macro >>(exs...)
     isexpr(ex, Symbol, :->)       ? Expr(:call, ex, x) :
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args..., x) :
     @capture(ex, f_.(xs__))       ? :($f.($(xs...), $x)) :
+    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
+                                    error("Unsupported expression $ex in @>>")
+
+  thread(x, exs...) = reduce(thread, x, exs)
+
+  esc(thread(exs...))
+end
+
+"""
+Same as `@>>`, but broadcasts.
+
+  @.>> x g(y, z) f == f.(g.(y, z, x))
+
+  @.>> x g f(y, z) == f.(y, z, g.(x))
+"""
+macro .>>(exs...)
+  thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
+
+  thread(x, ex) =
+    isexpr(ex, Symbol, :->)       ? Expr(Symbol("."), ex, Expr(:tuple, x)) :
+    isexpr(ex, :call, :macrocall) ? Expr(Symbol("."), ex.args[1], Expr(:tuple, ex.args[2:end]..., x)) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>>")
 
@@ -322,7 +363,7 @@ export @init
 
 function initm(ex)
   quote
-      
+
     if !isdefined(@compat(@__MODULE__), :__inits__)
       const $(esc(:__inits__)) = Function[]
     end
