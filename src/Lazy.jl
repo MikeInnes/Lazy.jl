@@ -1,4 +1,4 @@
-VERSION > v"0.4-" && __precompile__()
+__precompile__()
 
 module Lazy
 
