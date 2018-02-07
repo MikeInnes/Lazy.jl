@@ -47,7 +47,7 @@ import Base: length, map, reduce, filter, reverse
 
 import Base.Iterators: drop, take
 
-export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, dropwhile,
+export riffle, interpose, take, drop, takelast, droplast, takenth, takewhile, takeuntil, dropwhile,
        lazymap, reductions, remove, dorun, foreach, distinct,
        groupby, partition, partitionby, splitat, splitby, flatten
 
@@ -88,6 +88,10 @@ for f in [:take :drop :takelast :droplast :takenth]
     @eval $f(l::List, n::Int) = $f(n, l)
     @eval $f(l::List, n::Integer) = $f(n, l)
 end
+
+takeuntil(pred::Function, l::List) =
+    @lazy isempty(l) ? [] :
+        pred(first(l)) ? [first(l)] : first(l):takeuntil(pred, tail(l))
 
 takewhile(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, tail(l))
