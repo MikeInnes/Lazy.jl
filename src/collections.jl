@@ -37,7 +37,7 @@ init(xs) = xs[1:end-1]
 #   return vs
 # end
 
-for f in (:takewhile, :splitby)
+for f in (:takewhile, :splitby, :takeuntil)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
 end
 

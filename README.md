@@ -149,6 +149,7 @@ takelast
 droplast
 takenth
 takewhile
+takeuntil
 dropwhile
 # These work as for arrays, but are
 # lazy where appropriate.
