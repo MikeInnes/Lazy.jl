@@ -141,6 +141,11 @@ tail(list(1,2,3)) == (2 3)
 
 flatten(list(1,2,list(3,4))) == (1 2 3 4)
 
+takeuntil(x -> x > 1, 0:1) == (0 1)
+takeuntil(x -> x > 1, 0:5) == (0 1 2)
+takeuntil(x -> x > 1, 2:5) == (2)
+takeuntil(x -> x > 1, []) == ()
+
 riffle
 interpose
 take
@@ -149,7 +154,6 @@ takelast
 droplast
 takenth
 takewhile
-takeuntil
 dropwhile
 # These work as for arrays, but are
 # lazy where appropriate.

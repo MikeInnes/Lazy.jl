@@ -89,6 +89,14 @@ for f in [:take :drop :takelast :droplast :takenth]
     @eval $f(l::List, n::Integer) = $f(n, l)
 end
 
+"""
+
+    takeuntil(pred, list)
+
+Take the elements in `list` until the `pred` function return true.
+Notice that the one which makes `pred` true is also taken.
+All elements will be taken if no one satisfy the `pred` function.
+"""
 takeuntil(pred::Function, l::List) =
     @lazy isempty(l) ? [] :
         pred(first(l)) ? [first(l)] : first(l):takeuntil(pred, tail(l))
