@@ -99,34 +99,6 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 end == 6
 ```
 
-Lazy.jl also provides a switch statement of sorts via a macro.
-
-```julia
-@switch x begin
-  1; "x equals one!"
-  2; "x equals two!"
-  "x equals something else!"
-end
-```
-
-However, it's a bit more general than a regular switch in that you can test more than just equality:
-
-```julia
-@switch isa(x, _) begin
-  Integer; "x is an integer!"
-  FloatingPoint; "x is a float!"
-  "x is something else!"
-end
-
-@switch _ begin
-  a > b;  "more than!"
-  a < b;  "less than!"
-  a == b; "equal!"       # Note that this level of enthusiasm is not mandatory.
-end
-```
-
-Where `_` is replaced by the value for testing in each case. The final expression, if there is one, is used as the default value; if there is no default and nothing matches an error will be thrown.
-
 ### Function Reference
 
 ```julia
@@ -168,6 +140,11 @@ first(list(1,2,3)) == 1
 tail(list(1,2,3)) == (2 3)
 
 flatten(list(1,2,list(3,4))) == (1 2 3 4)
+
+takeuntil(x -> x > 1, 0:1) == (0 1)
+takeuntil(x -> x > 1, 0:5) == (0 1 2)
+takeuntil(x -> x > 1, 2:5) == (2)
+takeuntil(x -> x > 1, []) == ()
 
 riffle
 interpose

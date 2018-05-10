@@ -4,7 +4,7 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @cond, @with, @errs,
+export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
   @forward, @iter
 
 """
@@ -212,25 +212,10 @@ End-less let block, e.g.
 """
 macro with(ex)
   @capture(ex, ((bindings__,), body_)) || error("Invalid expression @with $ex")
-  ex = :(let
+  ex = :(let $(bindings...)
            $body
          end)
-  push!(ex.args, bindings...)
   return esc(ex)
-end
-
-"""
-Compile-time conditional, e.g.
-
-    @cond VERSION > v"0.4-" ? Dict(1=>2) : [1=>2]
-
-Also supports if-else chains via ternary or block syntax.
-"""
-macro cond(ex)
-  @match ex begin
-    (c_ ? y_ : n_) => (eval(current_module(), c) ? esc(y) : :(@cond $(esc(n))))
-    _ => esc(ex)
-  end
 end
 
 # Other syntax
@@ -249,11 +234,7 @@ Creates a typed dictionary, e.g.
      :b => 2
 """
 macro d(xs...)
-  @cond if VERSION < v"0.4-"
-    Expr(:typed_dict, :(Any=>Any), map(esc, xs)...)
-  else
-    :(Dict{Any, Any}($(map(esc, xs)...)))
-  end
+  :(Dict{Any, Any}($(map(esc, xs)...)))
 end
 
 macro errs(ex)
@@ -323,7 +304,7 @@ export @init
 
 function initm(ex)
   quote
-      
+
     if !isdefined(@compat(@__MODULE__), :__inits__)
       const $(esc(:__inits__)) = Function[]
     end

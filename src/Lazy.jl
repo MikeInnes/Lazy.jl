@@ -1,4 +1,4 @@
-VERSION > v"0.4-" && __precompile__()
+__precompile__()
 
 module Lazy
 
@@ -60,6 +60,7 @@ isempty(::EmptyList) = true
 
 prepend(x, l::List) = LinkedList(x, l)
 colon(x, xs::List) = prepend(x, xs)
+colon(x::List, xs::List) = prepend(x, xs) # special case: prepend list
 colon(x,y,xs::List) = x:prepend(y,xs)
 
 list() = EmptyList()
