@@ -23,6 +23,7 @@ using Base.Test
     @test flatten(list(1,2,list(3,4))) == list(1, 2, 3, 4)
     @test list(1,2,list(3,4))[3] == list(3, 4)
     @test list(list(1), list(2))[1] == list(1)
+    @test reductions(+, 0, list(1, 2, 3)) == list(1, 3, 6)
 end
 
 @testset "Fibs" begin
