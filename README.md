@@ -127,8 +127,8 @@ cycle(a) == (a... a... a... ...)
 cycle([1,2,3]) == (1 2 3 1 2 3 1 2 3 1 ...)
 
 # Repeatedly nest function calls
-iterate(f, x) == (x f(x) f(f(x)) ...)
-iterate(x->x^2, 2) == (2 4 16 256 65536 ...)
+iterated(f, x) == (x f(x) f(f(x)) ...)
+iterated(x->x^2, 2) == (2 4 16 256 65536 ...)
 
 range(2) == (2 3 4 5 ...)
 range(1, 5) == (1 2 3 4 5)

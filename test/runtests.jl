@@ -13,7 +13,7 @@ using Base.Test
     testfn() = 1
     @test repeatedly(testfn)[50] == 1
     @test cycle([1, 2, 3])[50] == 2
-    @test iterate(x->x^2, 2)[3] == 16
+    @test iterated(x->x^2, 2)[3] == 16
     @test range(1, 5)[3] == 3
     @test range(1, 5)[10] == nothing
     @test range(1, 5)[-1] == 1

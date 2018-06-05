@@ -2,7 +2,7 @@
 # Construction
 # ------------
 
-export seq, constantly, repeatedly, iterate, concat
+export seq, constantly, repeatedly, iterated, concat
 
 seq(xs::List) = xs
 seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
@@ -24,7 +24,7 @@ cycle(xs) = @lazy xs * cycle(xs)
 repeatedly(f) = @lazy f():repeatedly(f)
 repeatedly(n, f) = @>> repeatedly(f) take(n)
 
-iterate(f, v) = @lazy v:iterate(f, f(v))
+iterated(f, v) = @lazy v:iterated(f, f(v))
 
 range(x, y, step=1) =
   @lazy x <= y ? (x:range(x+step, y, step)) : []
