@@ -140,7 +140,7 @@ filter(f::Function, xs::List) =
 
 remove(f::Function, xs::List) = filter(x->!f(x), xs)
 
-reverse(xs::List) = reduce((xs, x)->x:xs, list(), xs)
+reverse(xs::List) = reduce((xs, x)->x:xs, xs, init=list())
 
 distinct(xs::List) = distinct(xs, Set())
 
@@ -182,7 +182,7 @@ prewalk(f, xs)  = walk(x -> prewalk(f, x), identity, f(xs))
 postwalk(f, xs) = walk(x -> postwalk(f, x), f, xs)
 
 flatten(x) = list(x)
-flatten(xs::List) = reduce((xs, x) -> xs*flatten(x), list(), xs)
+flatten(xs::List) = reduce((xs, x) -> xs*flatten(x), xs, init=list())
 
 # ----------
 # Predicates
