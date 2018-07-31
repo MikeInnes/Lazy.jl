@@ -59,7 +59,7 @@ Caveats:
 Use the more flexible, but slower, `@bounce` to avoid these issues.
 """
 macro rec(def)
-  def = shortdef(macroexpand(def))
+  def = shortdef(macroexpand(Lazy, def))
   @capture(def, f_(args__) = body_) || error("@rec: $def is not a function definition.")
   f = namify(f)
   dummy = @>> args map(namify) map(string) map(gensym)
@@ -101,7 +101,9 @@ end
 
 function trampdef(f)
   f_tramp = trampname(f)
-  isdefined(f_tramp) && return
+  if @isdefined f_tramp 
+    return
+  end
   :($f_tramp(args...) = $f(args...))
 end
 
