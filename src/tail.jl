@@ -59,7 +59,7 @@ Caveats:
 Use the more flexible, but slower, `@bounce` to avoid these issues.
 """
 macro rec(def)
-  def = shortdef(macroexpand(def))
+  def = shortdef(macroexpand(@__MODULE__, def))
   @capture(def, f_(args__) = body_) || error("@rec: $def is not a function definition.")
   f = namify(f)
   dummy = @>> args map(namify) map(string) map(gensym)

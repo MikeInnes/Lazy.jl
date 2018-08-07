@@ -1,5 +1,3 @@
-__precompile__()
-
 module Lazy
 
 ############
@@ -28,7 +26,7 @@ end
 # Types
 ########
 
-import Base: isempty, first, colon
+import Base: isempty, first
 
 export List, list, @lazy, prepend, tail
 
@@ -59,9 +57,9 @@ isempty(::EmptyList) = true
 # Lists
 
 prepend(x, l::List) = LinkedList(x, l)
-colon(x, xs::List) = prepend(x, xs)
-colon(x::List, xs::List) = prepend(x, xs) # special case: prepend list
-colon(x,y,xs::List) = x:prepend(y,xs)
+(::Colon)(x, xs::List) = prepend(x, xs)
+(::Colon)(x::List, xs::List) = prepend(x, xs) # special case: prepend list
+(::Colon)(x,y,xs::List) = x:prepend(y,xs)
 
 list() = EmptyList()
 list(x, xs...) = x:list(xs...)
@@ -114,7 +112,7 @@ include("collections.jl")
 # a core language generic function. If so, extend rather than define
 # it.
 
-if isdefined(:foreach) && isa(foreach, Function)
+if isdefined(Base, :foreach) && isa(foreach, Function)
     import Base.foreach
 end
 
@@ -129,7 +127,7 @@ foreach(f, ls::List...) = map(f, ls...) |> dorun
 # Interop
 # -------
 
-import Base: getindex, setindex!, start, next, done
+import Base: getindex, setindex!, start, next
 
 getindex(l::List, i::Int) = i <= 1 ? first(l) : tail(l)[i-1]
 getindex(l::List, r::UnitRange) = take(r.len, drop(r.start - 1, l))

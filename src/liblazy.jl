@@ -64,7 +64,7 @@ interpose(xs::List, y, n = 1) =
 
 length(l::List) = isempty(l) ? 0 : 1 + length(tail(l))
 
-Base.endof(l::List) = error("Cant use `end` with List.")
+Base.lastindex(l::List) = error("Cant use `end` with List.")
 
 take(n::Integer, l::List) =
   @lazy n <= 0 || isempty(l) ? [] : prepend(first(l), take(n-1, tail(l)))

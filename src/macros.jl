@@ -93,7 +93,7 @@ macro >(exs...)
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
     Expr(:call, ex, x)
 
-  thread(x, exs...) = reduce(thread, x, exs)
+  thread(x, exs...) = reduce(thread, exs, init=x)
 
   esc(thread(exs...))
 end
@@ -115,7 +115,7 @@ macro >>(exs...)
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>>")
 
-  thread(x, exs...) = reduce(thread, x, exs)
+  thread(x, exs...) = reduce(thread, exs; init=x)
 
   esc(thread(exs...))
 end
@@ -143,7 +143,7 @@ macro as(as, exs...)
         $ex
       end)
 
-  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), x, exs)
+  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), exs, init=x)
 
   esc(thread(exs...))
 end
