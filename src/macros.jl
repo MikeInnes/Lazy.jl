@@ -240,8 +240,8 @@ end
 macro errs(ex)
   :(try $(esc(ex))
     catch e
-      showerror(STDERR, e, catch_backtrace())
-      println(STDERR)
+      showerror(stderr, e, catch_backtrace())
+      println(stderr)
     end)
 end
 
@@ -303,10 +303,10 @@ export @init
 function initm(ex)
   quote
 
-    if !isdefined(@compat(@__MODULE__), :__inits__)
+    if !isdefined(@__MODULE__, :__inits__)
       const $(esc(:__inits__)) = Function[]
     end
-    if !isdefined(@compat(@__MODULE__), :__init__)
+    if !isdefined(@__MODULE__, :__init__)
       function $(esc(:__init__))()
         for f in $(esc(:__inits__))
           f()
