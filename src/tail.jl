@@ -101,7 +101,7 @@ end
 
 function trampdef(f)
   f_tramp = trampname(f)
-  isdefined(f_tramp) && return
+  @isdefined(f_tramp) && return
   :($f_tramp(args...) = $f(args...))
 end
 

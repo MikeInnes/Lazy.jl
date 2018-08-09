@@ -9,12 +9,20 @@ seq(xs::Array) = isempty(xs) ? list() : xs[1]:seq(xs[2:end])
 
 seq(xs::Tuple) = seq(collect(xs))
 
-seq(itr) = seq(itr, start(itr))
-seq(itr, state) =
-  @lazy done(itr, state) ? [] :
-    begin x, state = next(itr, state)
-      prepend(x, seq(itr, state))
-    end
+function seq(itr)
+  xs = iterate(itr)
+  xs == nothing && return EmptyList()
+  x, state = xs
+  prepend(x, seq(itr, state))
+end
+
+# there should maybe be a @lazy here, but tests pass
+function seq(itr, state)
+  xs = iterate(itr, state)
+  xs == nothing && return EmptyList()
+  x, state = xs
+  prepend(x, seq(itr, state))
+end
 
 constantly(x) = @lazy x:constantly(x)
 constantly(n, x) = @>> constantly(x) take(n)

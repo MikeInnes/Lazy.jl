@@ -1,6 +1,6 @@
 using Lazy
 import Lazy: cycle, range, drop, take
-using Base.Test
+using Test
 
 @testset "Lazy" begin
 
@@ -76,7 +76,7 @@ end
         @test all(Bool, yy) == false
     end
     # Base method--ensures no ambiguity with methods here
-    @test all([true true; true true], 1) == [true true]
+    @test all([true true; true true], dims=1) == [true true]
 end
 
 end

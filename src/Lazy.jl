@@ -127,7 +127,7 @@ foreach(f, ls::List...) = map(f, ls...) |> dorun
 # Interop
 # -------
 
-import Base: getindex, setindex!, start, next
+import Base: getindex, setindex!
 
 getindex(l::List, i::Int) = i <= 1 ? first(l) : tail(l)[i-1]
 getindex(l::List, r::UnitRange) = take(r.len, drop(r.start - 1, l))
@@ -136,9 +136,11 @@ setindex!(xs::LinkedList, v, i::Integer) = i <= 1 ? xs.first = v : (tail(xs)[i-1
 setindex!(xs::LazyList, v, i::Integer) = i <= 1 ? realise(xs)[1] = v : (tail(xs)[i-1] = v)
 
 # Iteration over a list holds on to the head
-start(xs::List) = xs
-done(::List, xs::List) = isempty(xs)
-next(::List, xs::List) = first(xs), tail(xs)
+Base.iterate(xs::List) = xs, xs
+function Base.iterate(::List, xs::List)
+  isempty(xs) && return nothing
+  first(xs), tail(xs)
+end
 
 ###########
 # Printing
