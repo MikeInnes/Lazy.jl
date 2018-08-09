@@ -93,7 +93,7 @@ macro >(exs...)
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
     Expr(:call, ex, x)
 
-  thread(x, exs...) = reduce(thread, x, exs)
+  thread(x, exs...) = reduce(thread, exs, init=x)
 
   esc(thread(exs...))
 end
@@ -115,7 +115,7 @@ macro >>(exs...)
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
                                     error("Unsupported expression $ex in @>>")
 
-  thread(x, exs...) = reduce(thread, x, exs)
+  thread(x, exs...) = reduce(thread, exs; init=x)
 
   esc(thread(exs...))
 end
@@ -143,7 +143,7 @@ macro as(as, exs...)
         $ex
       end)
 
-  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), x, exs)
+  thread(x, exs...) = reduce((x, ex) -> thread(x, ex), exs, init=x)
 
   esc(thread(exs...))
 end
@@ -282,18 +282,16 @@ end
 macro iter(ex)
   @capture(ex, x_::T_ -> it_) || error("Use @iter x::T -> y ...")
   @capture(it, $x.f_) &&
-    return :(@forward $(esc(T)).$f Base.start, Base.next, Base.done)
+    return :(@forward $(esc(T)).$f Base.iterate, Base.iterate)
   quote
-    @inline function Base.start($x::$T)
+    @inline function Base.iterate($x::$T)
       it = $it
-      Lazy.SubIter(it, Base.start(it))
+      Lazy.SubIter(it, Base.iterate(it))
     end
-    @inline function Base.next(::$T, sub::Lazy.SubIter)
-      next, state = Base.next(sub.iter, sub.state)
+    @inline function Base.iterate(::$T, sub::Lazy.SubIter)
+      next, state = Base.iterate(sub.iter, sub.state)
+      next == nothing && return nothing
       next, Lazy.SubIter(sub.iter, state)
-    end
-    @inline function Base.done(::$T, sub::Lazy.SubIter)
-      Base.done(sub.iter, sub.state)
     end
   end |> esc
 end
