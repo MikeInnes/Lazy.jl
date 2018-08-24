@@ -5,7 +5,7 @@ using MacroTools
 import Base: replace
 
 export @>, @>>, @as, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
-  @forward, @iter
+  @forward, @iter, @it
 
 """
 A switch statement of sorts:
