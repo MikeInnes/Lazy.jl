@@ -4,7 +4,7 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
+export @>, @>>, @as, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
   @forward, @iter
 
 """
@@ -130,8 +130,6 @@ end
  x^2
  x+2
 end == 6
-
-`@_` is a version of `@as` which defaults to `_` as the argument name.
 """
 macro as(as, exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
@@ -148,12 +146,28 @@ macro as(as, exs...)
   esc(thread(exs...))
 end
 
+it(something) =
+  if @capture something head_ |> tail_
+     Expr(:call, :|>, it(head), Expr(:->, :it, tail))
+  else
+    something
+  end
+
 """
-Same as `@as` but uses `_` as the argmument name.
+  @it something
+
+Modify a chain such that each tail becomes `it -> tail`.
+
+```jldoctest
+julia> @it 0 |> it + 1 |> it - 1
+0
+```
 """
-macro _(args...)
-  :(@as $(esc(:_)) $(map(esc, args)...))
+macro it(something)
+  esc(it(something))
 end
+
+
 
 macro or(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : esc(x)

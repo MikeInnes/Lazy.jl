@@ -58,6 +58,7 @@ end
         x + 2
     end
     @test temp == 6
+    @test 0 == @it 0 |> it + 1 |> it - 1
 end
 
 @testset "Listables" begin
