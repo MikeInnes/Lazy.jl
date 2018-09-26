@@ -2,6 +2,12 @@ using Lazy
 import Lazy: cycle, range, drop, take
 using Test
 
+# dummy macro to test threading macros on
+macro add_things(n1, n2)
+  Expr(:call, +, n1, n2)
+end
+
+
 @testset "Lazy" begin
 
 @testset "Lists" begin
@@ -48,7 +54,7 @@ end
     @test take(5, esquares) == list(4, 16, 36, 64, 100)
 end
 
-@testset "Threading macros" begin
+@testset "Threading macros" begin    
     temp = @> [2 3] sum
     @test temp == 5
     # Reverse from after index 2
@@ -59,6 +65,13 @@ end
         x + 2
     end
     @test temp == 6
+
+    # test that threading macros work with macros
+    temp = @> 2 @add_things(3)
+    @test temp == 5
+
+    temp = @>> 3 @add_things(2)
+    @test temp == 5
 end
 
 @testset "Listables" begin

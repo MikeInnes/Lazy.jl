@@ -87,14 +87,26 @@ See also `@>>`, `@as`.
 macro >(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
-  thread(x, ex) =
+  @static if VERSION < v"0.7"
+  
+    thread(x, ex) =
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
     @capture(ex, f_.(xs__))       ? :($f.($x, $(xs...))) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
     Expr(:call, ex, x)
 
-  thread(x, exs...) = reduce(thread, exs, init=x)
+  else
 
+    thread(x, ex) =
+    isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], ex.args[2], x, ex.args[3:end]...) :
+    @capture(ex, f_.(xs__))       ? :($f.($x, $(xs...))) :
+    isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
+    Expr(:call, ex, x)
+
+  end
+
+  thread(x, exs...) = reduce(thread, exs, init=x)
+    
   esc(thread(exs...))
 end
 
@@ -148,11 +160,13 @@ macro as(as, exs...)
   esc(thread(exs...))
 end
 
-"""
-Same as `@as` but uses `_` as the argmument name.
-"""
-macro _(args...)
-  :(@as $(esc(:_)) $(map(esc, args)...))
+@static if VERSION < v"0.7"
+  """
+  Same as `@as` but uses `_` as the argmument name.
+  """
+  macro _(args...)
+    :(@as $(esc(:_)) $(map(esc, args)...))
+  end
 end
 
 macro or(exs...)
