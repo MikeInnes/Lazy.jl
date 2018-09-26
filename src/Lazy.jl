@@ -136,8 +136,7 @@ setindex!(xs::LinkedList, v, i::Integer) = i <= 1 ? xs.first = v : (tail(xs)[i-1
 setindex!(xs::LazyList, v, i::Integer) = i <= 1 ? realise(xs)[1] = v : (tail(xs)[i-1] = v)
 
 # Iteration over a list holds on to the head
-Base.iterate(xs::List) = xs, xs
-function Base.iterate(::List, xs::List)
+function Base.iterate(L::List, xs::List=L)
   isempty(xs) && return nothing
   first(xs), tail(xs)
 end
