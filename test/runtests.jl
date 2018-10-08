@@ -72,6 +72,10 @@ end
 
     temp = @>> 3 @add_things(2)
     @test temp == 5
+
+    f(x, y) = 10x+y
+    temp = @> 1 f(2)
+    @test temp == 12
 end
 
 @testset "Listables" begin

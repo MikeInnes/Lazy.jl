@@ -98,7 +98,8 @@ macro >(exs...)
   else
 
     thread(x, ex) =
-    isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], ex.args[2], x, ex.args[3:end]...) :
+    isexpr(ex, :macrocall)        ? Expr(ex.head, ex.args[1], ex.args[2], x, ex.args[3:end]...) :
+    isexpr(ex, :call,)            ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
     @capture(ex, f_.(xs__))       ? :($f.($x, $(xs...))) :
     isexpr(ex, :block)            ? thread(x, rmlines(ex).args...) :
     Expr(:call, ex, x)
