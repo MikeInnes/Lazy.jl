@@ -2,11 +2,17 @@ using Lazy
 import Lazy: cycle, range, drop, take
 using Test
 
-# dummy macro to test threading macros on
-macro add_things(n1, n2)
-  Expr(:call, +, n1, n2)
+# dummy function to test threading macros on
+function add_things(n1, n2, n3)
+    100n1 + 10n2 + n3
 end
 
+# dummy macro to test threading macros on
+macro m_add_things(n1, n2, n3)
+    quote
+        100 * $(esc(n1)) + 10 * $(esc(n2)) + $(esc(n3))
+    end
+end
 
 @testset "Lazy" begin
 
@@ -66,16 +72,26 @@ end
     end
     @test temp == 6
 
+    # test that threading macros work with functions
+    temp = @> 1 add_things(2,3)
+    @test temp == 123
+
+    temp = @>> 3 add_things(1,2)
+    @test temp == 123
+
+    temp = @as x 2 add_things(1,x,3)
+    @test temp == 123
+
     # test that threading macros work with macros
-    temp = @> 2 @add_things(3)
-    @test temp == 5
+    temp = @> 1 @m_add_things(2,3)
+    @test temp == 123
 
-    temp = @>> 3 @add_things(2)
-    @test temp == 5
+    temp = @>> 3 @m_add_things(1,2)
+    @test temp == 123
 
-    f(x, y) = 10x+y
-    temp = @> 1 f(2)
-    @test temp == 12
+    temp = @as x 2 @m_add_things(1,x,3)
+    @test temp == 123
+        
 end
 
 @testset "Listables" begin
