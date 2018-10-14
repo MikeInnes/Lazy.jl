@@ -273,7 +273,8 @@ struct Wrapper
     x
 end
 
-@forward Wrapper.x Base.sqrt             # now sqrt(Wrapper(4.0)) == 2.0
+@forward Wrapper.x Base.sqrt                                   # now sqrt(Wrapper(4.0)) == 2.0
+@forward Wrapper.x (Base.length, Base.getindex, Base.iterate)  # several forwarded functions are put in a tuple
 ```
 """
 macro forward(ex, fs)
