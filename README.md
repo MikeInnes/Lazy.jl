@@ -39,7 +39,7 @@ If you've done any functional programming, you already know how to use Lazy.jl; 
 
 ### Intro to Laziness
 
-For the unfamiliar, laziness just means that the elements of the list aren't actally calculated until you use them. This allows you to perform all sorts of magic, like working with infinite lists or lists of items from the future.
+For the unfamiliar, laziness just means that the elements of the list aren't actually calculated until you use them. This allows you to perform all sorts of magic, like working with infinite lists or lists of items from the future.
 
 ```julia
 # Even square numbers:
@@ -64,7 +64,7 @@ But lazy lists aren't just for mathematical tricks; you can use them very practi
 @>> "file.txt" lineseq foreach(println) # Will work no matter many lines file.txt has
 ```
 
-The other thing that seperates lists from arrays is the huge amount of functionality that comes with most functional programming libraries, including Lazy.jl - if you know your way around them, most data manipulation becomes a simple case of chaining a few functions together. Even if you do ultimately need arrays for speed, you could do worse than to prototype with lists.
+The other thing that separates lists from arrays is the huge amount of functionality that comes with most functional programming libraries, including Lazy.jl - if you know your way around them, most data manipulation becomes a simple case of chaining a few functions together. Even if you do ultimately need arrays for speed, you could do worse than to prototype with lists.
 
 ### Macros
 
@@ -88,7 +88,7 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 
 @>> x g f(y, z) == f(y, z, g(x))
 
-# @as lets you name the threaded argmument
+# @as lets you name the threaded argument
 @as _ x f(_, y) g(z, _) == g(z, f(x, y))
 
 # All threading macros work over begin blocks
@@ -122,7 +122,7 @@ constantly(1) == (1 1 1 ...)
 repeatedly(f) == (f() f() f() ...)
 repeatedly(rand) == (0.634 0.478 0.776 ...)
 
-# Inifnitely repeat list
+# Infinitely repeat list
 cycle(a) == (a... a... a... ...)
 cycle([1,2,3]) == (1 2 3 1 2 3 1 2 3 1 ...)
 
