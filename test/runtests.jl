@@ -67,7 +67,7 @@ end
     @test take(5, esquares) == list(4, 16, 36, 64, 100)
 end
 
-@testset "Threading macros" begin    
+@testset "Threading macros" begin
     temp = @> [2 3] sum
     @test temp == 5
     # Reverse from after index 2
@@ -98,7 +98,7 @@ end
 
     temp = @as x 2 @m_add_things(1,x,3)
     @test temp == 123
-        
+
 end
 
 @testset "Listables" begin
