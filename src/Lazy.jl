@@ -59,7 +59,8 @@ isempty(::EmptyList) = true
 prepend(x, l::List) = LinkedList(x, l)
 (::Colon)(x, xs::List) = prepend(x, xs)
 (::Colon)(x::List, xs::List) = prepend(x, xs) # special case: prepend list
-(::Colon)(x,y,xs::List) = x:prepend(y,xs)
+(::Colon)(x::T, y, xs::T) where T<:List = prepend(x, prepend(y, xs))
+(::Colon)(x, y, xs::List) = x:prepend(y,xs)
 
 list() = EmptyList()
 list(x, xs...) = x:list(xs...)

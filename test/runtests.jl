@@ -16,6 +16,10 @@ end
 
 @testset "Lazy" begin
 
+if VERSION >= v"1.0.0"
+    @test isempty(detect_ambiguities(Base, Core, Lazy))
+end
+
 @testset "Lists" begin
     @test list(1, 2, 3)[2] == 2
     @test prepend(1, list(2,3,4)) == 1:list(2, 3, 4)
@@ -37,6 +41,9 @@ end
     @test list(list(1), list(2))[1] == list(1)
     @test reductions(+, 0, list(1, 2, 3)) == list(1, 3, 6)
     @test [i for i in @lazy[1,2,3]] == [1,2,3]
+
+    l = list(1, 2, 3)
+    @test l:7:l == list(list(1, 2, 3), 7, 1, 2, 3)   # ambiguity test
 end
 
 @testset "Fibs" begin
