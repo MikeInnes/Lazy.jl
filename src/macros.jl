@@ -192,7 +192,7 @@ end
 
 """
 A do-while loop – executes the while loop once regardless of the
-condition, then tests the condition before subsequen iterations.
+condition, then tests the condition before subsequent iterations.
 """
 macro oncethen(expr::Expr)
   @assert expr.head == :while
