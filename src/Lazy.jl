@@ -4,8 +4,6 @@ module Lazy
 # Utilities
 ############
 
-using Compat
-
 include("macros.jl")
 include("dynamic.jl")
 include("tail.jl")
@@ -109,13 +107,7 @@ include("collections.jl")
 # Eager
 # -----
 
-# Depending upon Julia and Compat versions, foreach may be defined as
-# a core language generic function. If so, extend rather than define
-# it.
-
-if isdefined(Base, :foreach) && isa(foreach, Function)
-    import Base.foreach
-end
+import Base.foreach
 
 export dorun, doall, foreach
 
