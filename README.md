@@ -14,6 +14,9 @@ Firstly, the canonical examples, in Julia:
 using Lazy
 
 # Note : prepends. Don't forget the semicolon!
+#   -- When running interactively, the semi-colon prevents the environment 
+#      from trying to display an infinite list.
+
 # Fibonacci sequence defined in terms of itself:
 fibs = @lazy 0:1:(fibs + drop(1, fibs));
 
