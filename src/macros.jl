@@ -69,26 +69,26 @@ function splitswitch(ex)
 end
 
 """
-The threading macro is like a more flexible version of the `|>` operator.
+The threading macro is like a more flexible version of the [`|>`](@ref) operator.
 
     @> x f = f(x)
     @> x g f == f(g(x))
     @> x a b c d e == e(d(c(b(a(x)))))
 
-Unlike |>, functions can have arguments - the value
+Unlike [`|>`](@ref), functions can have arguments - the value
 preceding a function will be treated as its first argument
 
     @> x g(y, z) f == f(g(x, y, z))
 
     @> x g f(y, z) == f(g(x), y, z)
 
-See also `@>>`, `@as`.
+See also [`@>>`](@ref), [`@as`](@ref).
 """
 macro >(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
 
   @static if VERSION < v"0.7"
-  
+
     thread(x, ex) =
     isexpr(ex, :call, :macrocall) ? Expr(ex.head, ex.args[1], x, ex.args[2:end]...) :
     @capture(ex, f_.(xs__))       ? :($f.($x, $(xs...))) :
@@ -107,16 +107,18 @@ macro >(exs...)
   end
 
   thread(x, exs...) = reduce(thread, exs, init=x)
-    
+
   esc(thread(exs...))
 end
 
 """
-Same as `@>`, but threads the last argument.
+Same as [`@>`](@ref), but threads the last argument.
 
-  @>> x g(y, z) f == f(g(y, z, x))
+    @>> x g(y, z) f == f(g(y, z, x))
 
-  @>> x g f(y, z) == f(y, z, g(x))
+    @>> x g f(y, z) == f(y, z, g(x))
+
+See also: [`@>>`](@ref)
 """
 macro >>(exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
@@ -134,17 +136,21 @@ macro >>(exs...)
 end
 
 """
-# @as lets you name the threaded argmument
-@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+    @as as, exs...
 
-# All threading macros work over begin blocks
+`@as` lets you name the threaded argmument
 
-@as x 2 begin
- x^2
- x+2
-end == 6
+    @as _ x f(_, y) g(z, _) == g(z, f(x, y))
 
 `@_` is a version of `@as` which defaults to `_` as the argument name.
+All threading macros work over begin blocks
+
+```julia
+6 === @as x 2 begin
+  x^2
+  x+2
+end
+```
 """
 macro as(as, exs...)
   thread(x) = isexpr(x, :block) ? thread(rmlines(x).args...) : x
@@ -181,7 +187,11 @@ macro or(exs...)
   thread(exs...)
 end
 
-"Repeat `body` `n` times."
+"""
+    @dottimes(n, body)
+
+Repeat `body` `n` times.
+"""
 macro dotimes(n, body)
   quote
     for i = 1:$(esc(n))
@@ -191,7 +201,7 @@ macro dotimes(n, body)
 end
 
 """
-A do-while loop – executes the while loop once regardless of the
+A `do`-`while` loop – executes the `while` loop once regardless of the
 condition, then tests the condition before subsequent iterations.
 """
 macro oncethen(expr::Expr)
@@ -220,7 +230,7 @@ macro defonce(def)
 end
 
 """
-End-less let block, e.g.
+End-less `let` block, e.g.
 
     @with (x = 1, y = 2),
       x+y

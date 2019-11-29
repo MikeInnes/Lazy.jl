@@ -48,15 +48,14 @@ Without `@rec` this function would overflow the stack for
 lists of 80,000 or more elements.
 
 Caveats:
-
-  • No support for trampolining, i.e. only calls to the
+- No support for trampolining, i.e. only calls to the
     given function are optimised away.
-  • Ignores multiple dispatch – it is assumed that the function's
+- Ignores multiple dispatch – it is assumed that the function's
     name always refers to the given definition.
-  • Don't rebind the function's name in a let (see above).
-  • Don't use this with varargs functions.
+- Don't rebind the function's name in a let (see above).
+- Don't use this with varargs functions.
 
-Use the more flexible, but slower, `@bounce` to avoid these issues.
+Use the more flexible, but slower, [`@bounce`](@ref) to avoid these issues.
 """
 macro rec(def)
   def = shortdef(macroexpand(@__MODULE__, def))
@@ -114,7 +113,7 @@ Tail recursion that doesn't blow the stack.
     even(1_000_000) # Blows up without `@bounce`.
     #> true
 
-For simple cases you probably want the much faster `@rec`.
+For simple cases you probably want the much faster [`@rec`](@ref).
 """
 macro bounce(def)
   def = macroexpand(@__MODULE__, def)
