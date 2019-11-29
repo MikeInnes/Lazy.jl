@@ -250,12 +250,14 @@ s(xs...) = Set{Any}(xs)
 d(xs...) = Dict{Any, Any}(xs...)
 
 """
-Creates a typed dictionary, e.g.
+Creates an **un**typed dictionary, e.g.
 
-   julia> @d(a=>1,b=>2)
-   Dict{Any,Any} with 2 entries:
-     :a => 1
-     :b => 2
+```julia
+julia> @d(:a=>1, :b=>2)
+Dict{Any,Any} with 2 entries:
+ :a => 1
+ :b => 2
+```
 """
 macro d(xs...)
   :(Dict{Any, Any}($(map(esc, xs)...)))
