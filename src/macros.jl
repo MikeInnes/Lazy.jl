@@ -4,7 +4,7 @@ using MacroTools
 
 import Base: replace
 
-export @>, @>>, @as, @_, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
+export @>, @>>, @as, @switch, @or, @dotimes, @oncethen, @defonce, @with, @errs,
   @forward, @iter
 
 """
@@ -142,7 +142,6 @@ end
 
     @as _ x f(_, y) g(z, _) == g(z, f(x, y))
 
-`@_` is a version of `@as` which defaults to `_` as the argument name.
 All threading macros work over begin blocks
 
 ```julia
