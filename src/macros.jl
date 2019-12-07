@@ -212,20 +212,21 @@ macro oncethen(expr::Expr)
 end
 
 """
-Stop Julia from complaining about redifined consts/types –
+Stop Julia from complaining about redifined struct/consts –
 
-    @defonce type MyType
+    @defonce struct MyType
       ...
     end
-    or
+
+or
+
     @defonce const pi = 3.14
 """
 macro defonce(def)
-  name = namify(isexpr(def, :type) ? def.args[2] : def)
-
-  :(if !isdefined($(Expr(:quote, name)))
-      $(esc(def))
-    end)
+  name = namify(isexpr(def, :struct) ? def.args[2] : def)
+  if !isdefined(__module__, name)
+    return :($(esc(def)))
+  end
 end
 
 """
