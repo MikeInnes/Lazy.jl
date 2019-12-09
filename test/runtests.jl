@@ -101,13 +101,15 @@ end
 
 end
 
+# define structs for @forward macro testing below
+struct Foo112 end
+struct Bar112 f::Foo112 end
+
 @testset "Forward macro" begin
-    struct Foo112 end
     play(x::Foo112; y) = y                        # uses keyword arg
     play(x::Foo112, z) = z                        # uses regular arg
     play(x::Foo112, z1, z2; y) = y + z1 + z2      # uses both
 
-    struct Bar112 f::Foo112 end                   # composition
     @forward Bar112.f play                        # forward `play` function to field `f`
 
     let f = Foo112(), b = Bar112(f)
