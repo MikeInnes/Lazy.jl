@@ -14,6 +14,11 @@ macro m_add_things(n1, n2, n3)
     end
 end
 
+# define structs for @forward macro testing below (PR #112)
+struct Foo112 end
+struct Bar112 f::Foo112 end
+    
+
 @testset "Lazy" begin
 
 if VERSION >= v"1.0.0"
@@ -100,10 +105,6 @@ end
     @test temp == 123
 
 end
-
-# define structs for @forward macro testing below
-struct Foo112 end
-struct Bar112 f::Foo112 end
 
 @testset "Forward macro" begin
     play(x::Foo112; y) = y                        # uses keyword arg
