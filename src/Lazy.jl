@@ -144,8 +144,6 @@ end
 ###########
 # Printing
 ###########
-maxlen(xs::List) = min(length(xs), 10)
-
 function Base.show(io::IO, xs::List)
   print(io, "List: (")
   for (i, x) in enumerate(interpose(xs, " "))
