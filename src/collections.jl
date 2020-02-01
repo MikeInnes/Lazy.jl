@@ -41,12 +41,10 @@ for f in (:takewhile, :splitby, :takeuntil)
   @eval $(f)(f::Function, xs) = $(f)(f, seq(xs))
 end
 
-import Base.@get!
-
 function groupby(f, xs)
   result = d()
   for x in xs
-    push!(@get!(result, f(x), []), x)
+    push!(get!(()->[], result, f(x)), x)
   end
   return result
 end
