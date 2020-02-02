@@ -137,18 +137,16 @@ end
 ###########
 # Printing
 ###########
-
-Base.show(io::IO, xs::List) =
-  foreach(x->print(io,x), ["("] * interpose(xs, " ") * [")"])
-
-function show(io::IO, ::MIME"text/plain", xs::List)
-  isempty(xs) && return println(io, "List()")
-
-  print(io, "List:")
-  for x in xs
-    print(io, "\n  ")
-    show(io, x)
+function Base.show(io::IO, xs::List)
+  print(io, "List: (")
+  for (i, x) in enumerate(interpose(xs, " "))
+    print(io, x)
+    if i > 21
+      print(io, "…")
+      break
+    end
   end
+  print(io, ")")
 end
 
 # Some example lists
