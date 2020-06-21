@@ -124,7 +124,7 @@ end
     @test_throws MethodError sin()
 end
 
-@testset "avoid stackoverflow" begin
+@static VERSION ≥ v"1.2" && @testset "avoid stackoverflow" begin
     @test (length(takewhile(<(10), Lazy.range(1))); true)
     @test (length(takewhile(<(100000), Lazy.range(1))); true)
 end
