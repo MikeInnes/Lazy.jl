@@ -70,7 +70,15 @@ interpose(xs::List, y, n = 1) =
        take(n, xs) * (isempty(drop(n, xs)) ? [] :
                         prepend(y, interpose(drop(n, xs), y, n)))
 
-length(l::List) = isempty(l) ? 0 : 1 + length(tail(l))
+function length(l::List)
+  ret = 0
+  # unroll in while loop in order to avoid stackoverflow
+  while !isempty(l)
+    l = tail(l)
+    ret += 1
+  end
+  return ret
+end
 
 Base.lastindex(l::List) = error("Cant use `end` with List.")
 
