@@ -17,7 +17,7 @@ end
 # define structs for @forward macro testing below (PR #112)
 struct Foo112 end
 struct Bar112 f::Foo112 end
-    
+
 
 @testset "Lazy" begin
 
@@ -114,10 +114,16 @@ end
     @forward Bar112.f play                        # forward `play` function to field `f`
 
     let f = Foo112(), b = Bar112(f)
-        @test play(f, y = 1) === play(b, y = 1) 
-        @test play(f, 2) === play(b, 2) 
-        @test play(f, 2, 3, y = 1) === play(b, 2, 3, y = 1) 
+        @test play(f, y = 1) === play(b, y = 1)
+        @test play(f, 2) === play(b, 2)
+        @test play(f, 2, 3, y = 1) === play(b, 2, 3, y = 1)
     end
+end
+
+@testset "getindex" begin
+    l = Lazy.range(1,10)
+    @test l[1] == 1
+    @test collect(l[1:5]) == collect(1:5)
 end
 
 @testset "Listables" begin
