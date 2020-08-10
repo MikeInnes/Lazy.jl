@@ -3,8 +3,9 @@ os:
   - linux
   - osx
 julia:
+  - 1 # current stable
   - 0.7
-  - 1.0
+  - 1.0 # lts  
   - nightly
 matrix:
   allow_failures:
