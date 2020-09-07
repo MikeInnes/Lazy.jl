@@ -92,7 +92,7 @@ The threading macros will pipe values through functions, a bit like the `|>` ope
 @>> x g f(y, z) == f(y, z, g(x))
 
 # @as lets you name the threaded argument
-@as _ x f(_, y) g(z, _) == g(z, f(x, y))
+@as x start_value f(x, y) g(z, x) == g(z, f(start_value, y))
 
 # All threading macros work over begin blocks
 
