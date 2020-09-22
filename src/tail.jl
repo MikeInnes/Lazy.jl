@@ -116,7 +116,7 @@ Tail recursion that doesn't blow the stack.
 For simple cases you probably want the much faster [`@rec`](@ref).
 """
 macro bounce(def)
-  def = macroexpand(@__MODULE__, def)
+  def = macroexpand(@__MODULE__, prettify(def))
   @assert isdef(def)
   @assert isexpr(def.args[1].args[1], Symbol) # TODO: handle f{T}() = ...
   f = namify(def)
