@@ -84,8 +84,8 @@ mutable struct Bounce
   f::Function
 end
 
-function trampoline(f, args...)
-  val = f(args...)
+function trampoline(f, args...; kwargs...)
+  val = f(args...; kwargs...)
   while isa(val, Bounce)
     val = val.f()
   end
@@ -116,21 +116,24 @@ Tail recursion that doesn't blow the stack.
 For simple cases you probably want the much faster [`@rec`](@ref).
 """
 macro bounce(def)
-  def = macroexpand(@__MODULE__, def)
+  def = macroexpand(@__MODULE__, prettify(def))
   @assert isdef(def)
   @assert isexpr(def.args[1].args[1], Symbol) # TODO: handle f{T}() = ...
   f = namify(def)
   f_tramp = trampname(f)
-  args = def.args[1].args[2:end]
   def.args[1].args[1] = f_tramp
-
+  @capture(def.args[1], ff_(args__; kwargs__)) || @capture(def.args[1], ff_(args__))
+  isnothing(kwargs) && (kwargs = [])
+  
   calls = Symbol[]
   def.args[2] = tailcalls(ex -> (isexpr(ex, :call) && push!(calls, ex.args[1]);
                                  bounce(ex)),
                           def.args[2])
+
   quote
     $([trampdef(call) for call in calls]...)
     $def
-    $f($(args...)) = Lazy.trampoline($f_tramp, $(args...))
+    $f($(args...);$(kwargs...)) = trampoline($f_tramp, $(args...); $(kwargs...))
   end |> esc
+
 end
