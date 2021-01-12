@@ -134,6 +134,9 @@ function Base.iterate(L::List, xs::List=L)
   first(xs), tail(xs)
 end
 
+Base.IteratorSize(::Type{<:List}) = Base.SizeUnknown()
+Base.IteratorEltype(::Type{<:List}) = Base.EltypeUnknown()
+
 ###########
 # Printing
 ###########
