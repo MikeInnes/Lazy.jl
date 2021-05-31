@@ -1,5 +1,7 @@
 using MacroTools
 
+import Logging.@warn
+
 # Tail call operations
 
 function lastcalls(f, ex)
@@ -30,7 +32,35 @@ tailcalls(f, ex) = @>> ex lastcalls(f) retcalls(f)
 export @rec, @bounce
 
 "Generate an expression like `(a, b) = (c, d)`."
-tupleassign(xs, ys) = Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...))
+tupleassign(xs, ys) = quote
+  begin
+    (xs__tailrec_tupleassign, ys__tailrec_tupleassign) = ($xs, $ys)
+    (xslen__tailrec_tupleassign, yslen__tailrec_tupleassign) = (
+      length($xs), length($ys)
+    )
+    if xslen__tailrec_tupleassign > yslen__tailrec_tupleassign
+      error("""
+      @rec: [tupleassign] Wrong number of arguments passed in tail-recursive calls
+        (Tuple$(xslen__tailrec_tupleassign)...) = (Tuple$(yslen__tailrec_tupleassign)...)
+        $xs__tailrec_tupleassign = $ys__tailrec_tupleassign
+      """)
+    else
+      if xslen__tailrec_tupleassign < yslen__tailrec_tupleassign
+        @warn """
+        @rec: [tupleassign] Extra arguments passed in recursive calls will be ignored
+          > `Lazy.@rec` keeps track of arguments in a tuple, and your recursive
+          > call passed extra arguments to the function. This will result (after
+          > macro expansion) in a snippet like `(arg1, arg2) = (rec1, rec2, rec3)`
+          > Julia allows you to do this (`rec3` will be ignored), but in this case
+          > it is most likely a mistake.
+        """
+      end
+      $(Expr(:(=), Expr(:tuple, xs...), Expr(:tuple, ys...)))
+    end
+  end
+end
+
+
 
 tco(ex, f, dummy, start) =
   @capture(ex, $f(args__)) ?
