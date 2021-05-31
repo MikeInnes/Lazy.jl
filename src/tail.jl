@@ -34,7 +34,7 @@ export @rec, @bounce
 "Generate an expression like `(a, b) = (c, d)`."
 tupleassign(xs, ys) = quote
   begin
-    if length(xs) < length(ys)
+    if length($xs) < length($ys)
       @warn """
       @rec: [tupleassign] Extra arguments passed in recursive calls will be ignored
         > `Lazy.@rec` keeps track of arguments in a tuple, and your recursive
