@@ -96,7 +96,7 @@ Base.last(l::List) = @>> l takelast(1) first
 droplast(n::Integer, l::List) =
   map((x,_)->x, l, drop(n,l))
 
-takenth(n::Integer, l::List) =
+@rec takenth(n::Integer, l::List) =
   @lazy isempty(l) ? [] : first(drop(n-1,l)):takenth(n, drop(n, l))
 
 for f in [:take :drop :takelast :droplast :takenth]
@@ -113,14 +113,14 @@ Take the elements in `list` until the `pred` function return true.
 Notice that the one which makes `pred` true is also taken.
 All elements will be taken if no one satisfy the `pred` function.
 """
-takeuntil(pred::Function, l::List) =
+@rec takeuntil(pred::Function, l::List) =
     @lazy isempty(l) ? [] :
         pred(first(l)) ? [first(l)] : first(l):takeuntil(pred, tail(l))
 
-takewhile(pred::Function, l::List) =
+@rec takewhile(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? [] : first(l):takewhile(pred, tail(l))
 
-dropwhile(pred::Function, l::List) =
+@rec dropwhile(pred::Function, l::List) =
   @lazy isempty(l) || !pred(first(l)) ? l : dropwhile(pred, tail(l))
 
 mapply(f::Union{Function, DataType}, ls...) =
